@@ -27,6 +27,9 @@
     margin-top:20px;
 }
 
+.search-section button{
+}
+
 ol#results-list{
     list-style-type: none;
 }
@@ -40,7 +43,7 @@ ol#results-list li a{
     font-size:13pt;
 }
 
-ol#results-list .label{
+.label.music-tag{
     margin-right:5px;
 }
 
