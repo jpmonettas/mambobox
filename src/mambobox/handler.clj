@@ -3,12 +3,12 @@
         hiccup.core)
   (:require [compojure.handler :as handler]
             [compojure.route :as route]
-            [mambobox.views.views :as views]))
+            [mambobox.views.home :as views]))
 
 
 
 (defroutes app-routes
-  (GET "/" [] (views/test-view-in-views))
+  (GET "/" [] (views/music-page-view))
   (route/resources "/")
   (route/not-found "Not Found"))
 

@@ -1,0 +1,61 @@
+#main-banner-div{
+    background-color:#660033;
+    height: 140px;
+    margin-top: 20px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+#banner-text-div{
+    color:#ffffff;
+    font-size: 40pt;
+    margin-left: 10px;
+    margin-top: 30px;
+    float:left;
+}
+
+#logo-div{
+    background:url('/img/logo.png');
+    width:100px;
+    height:100px;
+    float:right;
+    margin-top:20px;
+}
+
+.navbar{
+    margin-top:20px;
+}
+
+ol#results-list{
+    list-style-type: none;
+}
+
+ol#results-list li{
+    margin-top: 15px;
+}
+
+ol#results-list li a{
+    text-decoration:none;
+    font-size:13pt;
+}
+
+ol#results-list .label{
+    margin-right:5px;
+}
+
+.label.son{
+    background-color:#f0ad4e;
+}
+
+.label.chacha{
+    background-color:#d9534f;
+}
+
+.label.guaguanco{
+    background-color:#5cb85c;
+}
+
+#pagination-div{
+    text-align:center;
+}
