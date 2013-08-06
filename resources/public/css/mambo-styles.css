@@ -62,3 +62,9 @@ ol#results-list li a{
 #pagination-div{
     text-align:center;
 }
+
+/* This is for the upload bars */
+.bar {
+    height: 18px;
+    background: grey;
+}

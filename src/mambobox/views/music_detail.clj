@@ -4,14 +4,16 @@
   (:require [mambobox.data-access :as data]
             [mambobox.views.general :as gen]))
 
-;; [:button {:class "btn"} [:i {:class "glyphicon glyphicon-plus"}]]
 
 (defn song-details [song]
-  (let [song-id (get song :id)
-        song-name (get song :song-name)
+  (let [song-id (get song :_id)
+        song-name (get song :name)
         artist (get song :artist)
-        tags (get song :tags)]
+        tags (get song :tags)
+        file-path (get song :generated-file-name)]
        [:div
+        [:audio {:controls ""}
+         [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]
         [:div {:class "song-name"} song-name]
         [:div {:class "artist"} artist]
         [:div {:class "tags"}
@@ -21,16 +23,16 @@
 
 
 (defn music-detail-view [song]
-    (html5
-     [:html
-      gen/head
-      [:body
-       [:div {:class "container"}
-        [:div {:class "row"}
-         gen/banner]
-        [:div {:class "row"}
-         (gen/navbar :music)]
-        [:div {:class "row"}
-         (song-details song)
-         ]]]]))
+  (html5
+   [:html
+    gen/head
+    [:body
+     [:div {:class "container"}
+      [:div {:class "row"}
+       gen/banner]
+      [:div {:class "row"}
+       (gen/navbar :music)]
+      [:div {:class "row"}
+       (song-details song)
+       ]]]]))
      
