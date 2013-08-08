@@ -5,15 +5,26 @@
             [mambobox.views.general :as gen]))
 
 
-(defn search-box [q]
+(defn search-box [q tag]
   [:div {:class "search-section"}
    [:form {:method "GET" :action "/music/"}
     [:div {:class "input-group"}
-     [:span {:class "input-group-addon"} "Search:"]
      [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "song name, artist name, etc"}]
+     [:input {:type "hidden" :name "tagfilter" :value tag :id "tag-filter"}]
      [:span {:class "input-group-btn"}
       [:button {:class "btn btn-default" :type "submit"} "Go!"]]]]])
 
+(defn tag-filter-accordion []
+  [:div {:class "accordion" :id "tag-filter-accordion"}
+   [:div {:class "accordion-group"}
+    [:div {:class "accordion-heading"}
+     [:a {:class "accordion-toggle" :data-toggle "collapse" :data-parent "#tag-filter-accordion" :href "#collapse"} "Tag filter"]]
+    [:div {:id "collapse" :class "accordion-body collapse"}
+     [:div {:class "accordion-inner"}
+      [:div {:class "clearfix tags-container"}
+       (for [[tag color] gen/tags-color-map]
+         [:div {:class "label-wrapper-div"}
+          [:span {:class "label music-tag" :style (str "background-color:" color)} tag]])]]]]])
 
 (defn pagination [num-pages cur-page]
   [:div {:id "pagination-div"}
@@ -26,8 +37,10 @@
     [:li (when (= cur-page num-pages) {:class "disabled"}) 
      [:span {:class "right-arrow"} "&raquo;"]]]])
 
+
 (defn search-results [result-col cur-page num-pages]
   [:div {:id "results-main-div"}
+   (tag-filter-accordion)
    [:ol {:id "results-list"}
     (for [result result-col
           :let [song-id (get result :_id)
@@ -40,13 +53,13 @@
         [:div {:class "artist"} artist]
         [:div {:class "tags"}
          (for [tag tags]
-           [:span {:class (str "label music-tag" " " tag)} tag])
+           (gen/render-tag-label tag))
          ]]])
     ]
    (pagination num-pages cur-page)])
 
 
-(defn music-search-view [result-col q cur-page num-pages]
+(defn music-search-view [result-col q tag cur-page num-pages]
     (html5
      [:html
       gen/head
@@ -57,13 +70,16 @@
         [:div {:class "row"}
          (gen/navbar :music)]
         [:div {:class "row"}
-         [:div {:class "col-offset-3 col-6"}
-          (search-box q)]
+         [:div {:class "col-8 col-offset-2"}
+          (search-box q tag)]
          [:div
           [:a {:href "/upload"}
            [:button {:class "btn btn-primary" :type "button"} "Upload!"]]]]
         [:div {:class "row"}
-         [:h3 {:class "col-4"} "Search results:"]]
+         [:div {:class "col-8 col-lg-2"}
+          [:h3  "Search results:"]]
+         [:div {:class "col-3 col-lg-1 tag-search"}
+          (when tag (gen/render-tag-label tag "glyphicon-remove"))]]
         [:div {:class "row"}
          (search-results result-col cur-page num-pages)]
         ]]]))

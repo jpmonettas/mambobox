@@ -42,6 +42,15 @@ $(function (){
     });
 });
 
+/* For controlling clicks on tags */
+$(function (){
+   $(".label.music-tag").click(function(){
+        var tagName=$(this).text();
+        console.log(tagName);
+        $("#tag-filter").val(tagName);
+        $(".search-section form").submit();
+    });
+});
 
 /*Extracted from IB
  This simply replace/add a parameter in a qstring*/
@@ -65,3 +74,30 @@ function insertParamSearch(search, key, value)
     return '?' + kvp.join('&'); 
   }
 }
+
+
+/* For tag selection in the modal */
+$(document).ready(function (){
+    $(".label-wrapper-div").click(function(){
+        var labelHtml=$(this).html();
+        $("#selected-tag").html(labelHtml);
+    });
+    $("#add-tag").click(function(){
+        var songId=$("#song-id").val();
+        var tagHtml=$("#selected-tag").html();
+        var tagName=$("#selected-tag span").text();
+        var postUrl="/music/" + songId + "/tags/" + tagName;
+        if(tagName){
+            $.ajax({
+                type:"POST",
+                url: postUrl,
+                success:function(){
+                    $("#main-music-detail-div .tags").prepend(tagHtml);
+                    $('#select-tag-modal').modal('hide');
+                }
+            });
+        }
+    });
+
+ 
+});

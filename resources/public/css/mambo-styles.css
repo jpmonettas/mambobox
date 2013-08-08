@@ -7,13 +7,27 @@
     border-radius: 5px;
 }
 
-#banner-text-div{
-    color:#ffffff;
-    font-size: 40pt;
-    margin-left: 10px;
-    margin-top: 30px;
-    float:left;
+@media screen{
+    #banner-text-div{
+        color:#ffffff;
+        font-size: 40pt;
+        margin-left: 10px;
+        margin-top: 30px;
+        float:left;
+    }
 }
+
+@media only screen 
+and (max-width : 1280px) {
+    #banner-text-div{
+        color:#ffffff;
+        font-size: 25pt;
+        margin-left: 10px;
+        margin-top: 30px;
+        float:left;
+    }
+}
+
 
 #logo-div{
     background:url('/img/logo.png');
@@ -43,21 +57,6 @@ ol#results-list li a{
     font-size:13pt;
 }
 
-.label.music-tag{
-    margin-right:5px;
-}
-
-.label.son{
-    background-color:#f0ad4e;
-}
-
-.label.chacha{
-    background-color:#d9534f;
-}
-
-.label.guaguanco{
-    background-color:#5cb85c;
-}
 
 #pagination-div{
     text-align:center;
@@ -67,4 +66,56 @@ ol#results-list li a{
 .bar {
     height: 18px;
     background: grey;
+}
+
+#main-music-detail-div{
+    text-align:center;
+}
+
+#main-music-detail-div .song-name{
+    font-size: 16pt;
+    margin-bottom:10px;
+}
+
+#main-music-detail-div .artist{
+    font-size: 14pt;
+    margin-bottom:10px;
+}
+
+#main-music-detail-div .original-file-name{
+    margin-bottom:10px;
+    color:#747474;
+}
+
+#main-music-detail-div .tags{
+    margin-bottom:40px;
+}
+
+.label-wrapper-div{
+    float:left;
+}
+
+#select-tag-modal .tags-container{
+    margin-left: auto;
+    margin-right: auto;
+    width: 66%;
+    margin-bottom:30px;
+}
+
+#tag-filter-accordion .tags-container{
+    
+}
+
+.label.music-tag{
+    margin-right:5px;
+    cursor:pointer;
+}
+
+.upload-button-div{
+    margin-bottom:45px;
+}
+
+.tag-search span{
+    display: block;
+    margin-top: 26px;
 }
