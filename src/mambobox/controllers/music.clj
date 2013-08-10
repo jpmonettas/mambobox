@@ -22,12 +22,12 @@
 (defn music-search [q tag cur-page]
   (let [processed-q (when q (lower-case q))
         all-songs (data/get-all-songs)
-        query-filtered-songs (if q 
+        query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
                                          (song-contains-qstring? song processed-q))
                                        all-songs)
                                all-songs)
-        tag-filtered-songs (if q 
+        tag-filtered-songs (if (not (empty? tag)) 
                                (filter (fn [song]
                                          (song-contains-tag? song tag))
                                        query-filtered-songs)
@@ -50,7 +50,9 @@
   (let [song (data/get-song-by-id id)]
     (music-detail-view song)))
 
-(defn edit-music [id song-name artist])
+(defn edit-music [id song-name artist] 
+  (let [song (data/update-song id song-name artist)]
+    (music-detail-view song)))
 
 (defn upload-page []
   (music-upload-view))
@@ -72,4 +74,6 @@
   {:status 200})
 
 (defn delete-tag [song-id tag-name]
-  (str song-id " " tag-name))
+  (data/del-song-tag song-id tag-name)
+  {:status 200})
+

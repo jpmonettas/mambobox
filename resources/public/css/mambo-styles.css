@@ -93,6 +93,7 @@ ol#results-list li a{
 
 .label-wrapper-div{
     float:left;
+    margin-bottom: 15px;
 }
 
 #select-tag-modal .tags-container{
@@ -108,6 +109,14 @@ ol#results-list li a{
 
 .label.music-tag{
     margin-right:5px;
+    padding:7px;
+}
+
+.detail-tag{
+    margin-right:5px;
+}
+
+.label.music-tag.search, .label.music-tag.select, .label.music-tag.remove{
     cursor:pointer;
 }
 
@@ -118,4 +127,9 @@ ol#results-list li a{
 .tag-search span{
     display: block;
     margin-top: 26px;
+}
+
+
+#main-music-detail-div .song-name a{
+    margin-left: 13px;
 }

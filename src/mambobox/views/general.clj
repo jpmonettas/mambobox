@@ -53,8 +53,17 @@
    "yambu" "#5cb85c"
    "columbia" "#5cb85c"})
 
-(defn render-tag-label [tag-name & icon]
+(defn render-detail-tag-label [tag-name]
+  (let [tag-color (get tags-color-map tag-name)]
+    [:div {:class "btn-group detail-tag"}
+     [:span {:class "label music-tag dropdown-toggle" 
+               :style (str "background-color:" tag-color)
+               :data-toggle "dropdown"} tag-name]
+     [:ul {:class "dropdown-menu"}
+      [:li "Remove"]]]))
+
+(defn render-tag-label [tag-name extra-class & icon]
   (let [tag-color (get tags-color-map tag-name)
         icon-name (first icon)]
-    [:span {:class "label music-tag" :style (str "background-color:" tag-color)}
+    [:span {:class (str "label music-tag " extra-class) :style (str "background-color:" tag-color)}
       tag-name (when icon [:i {:class (str "glyphicon " icon-name)}])]))

@@ -44,13 +44,40 @@ $(function (){
 
 /* For controlling clicks on tags */
 $(function (){
-   $(".label.music-tag").click(function(){
+   $(".label.music-tag.search").click(function(){
         var tagName=$(this).text();
         console.log(tagName);
         $("#tag-filter").val(tagName);
         $(".search-section form").submit();
     });
 });
+
+/* For controlling clicks on search tags remove */
+$(function (){
+   $(".label.music-tag.remove").click(function(){
+       $("#tag-filter").val("");
+       $(".search-section form").submit();
+    });
+});
+
+/* For removing a tag */
+$(function (){
+   $(".detail-tag li").click(function(){
+       var tagElement=$(this);
+       var tagName=$($(this).parent().siblings("span")[0]).text();
+       var songId=$("#song-id").val();
+       var deleteUrl='/music/' + songId + '/tags/' + tagName;
+       $.ajax({
+                type:"DELETE",
+                url: deleteUrl,
+                error:function(){
+                   tagElement.remove(); 
+                }
+            });
+    });
+});
+
+
 
 /*Extracted from IB
  This simply replace/add a parameter in a qstring*/
@@ -74,10 +101,10 @@ function insertParamSearch(search, key, value)
     return '?' + kvp.join('&'); 
   }
 }
+ 
 
-
-/* For tag selection in the modal */
 $(document).ready(function (){
+    /* For tag selection in the modal */
     $(".label-wrapper-div").click(function(){
         var labelHtml=$(this).html();
         $("#selected-tag").html(labelHtml);
@@ -99,5 +126,4 @@ $(document).ready(function (){
         }
     });
 
- 
 });

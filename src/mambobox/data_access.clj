@@ -28,3 +28,9 @@
 (defn add-song-tag [song-id tagname]
   (mc/update "songs" {:_id (ObjectId. song-id)} {$push {:tags tagname}}))
       
+(defn del-song-tag [song-id tagname]
+  (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:tags tagname}}))
+
+(defn update-song [song-id song-name artist]
+  (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:name song-name :artist artist}})
+  (get-song-by-id song-id))

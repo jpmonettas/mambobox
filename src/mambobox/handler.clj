@@ -14,7 +14,7 @@
   ;;Music Page
   (GET "/music/" [q curpage tagfilter] (mc/music-search q tagfilter curpage))
   (GET "/music/:id" [id] (mc/music-id id))
-  (POST "/music/:id" [id songname artist] (mc/edit-music id songname artist))
+  (POST "/music/:id" [id newsongname newartist] (mc/edit-music id newsongname newartist))
   (POST "/music/:musicid/tags/:tagname" [musicid tagname] (mc/add-tag musicid tagname))
   (DELETE "/music/:musicid/tags/:tagname" [musicid tagname] (mc/delete-tag musicid tagname))
 

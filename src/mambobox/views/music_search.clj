@@ -24,7 +24,7 @@
       [:div {:class "clearfix tags-container"}
        (for [[tag color] gen/tags-color-map]
          [:div {:class "label-wrapper-div"}
-          [:span {:class "label music-tag" :style (str "background-color:" color)} tag]])]]]]])
+          [:span {:class "label music-tag search" :style (str "background-color:" color)} tag]])]]]]])
 
 (defn pagination [num-pages cur-page]
   [:div {:id "pagination-div"}
@@ -53,7 +53,7 @@
         [:div {:class "artist"} artist]
         [:div {:class "tags"}
          (for [tag tags]
-           (gen/render-tag-label tag))
+           (gen/render-tag-label tag "search"))
          ]]])
     ]
    (pagination num-pages cur-page)])
@@ -79,7 +79,7 @@
          [:div {:class "col-8 col-lg-2"}
           [:h3  "Search results:"]]
          [:div {:class "col-3 col-lg-1 tag-search"}
-          (when tag (gen/render-tag-label tag "glyphicon-remove"))]]
+          (when (not (empty? tag)) (gen/render-tag-label tag "remove" "glyphicon-remove"))]]
         [:div {:class "row"}
          (search-results result-col cur-page num-pages)]
         ]]]))

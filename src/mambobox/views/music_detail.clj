@@ -17,13 +17,32 @@
       [:div {:id "tags-container" :class "tags-container clearfix"}
        (for [[tag color] gen/tags-color-map]
          [:div {:class "label-wrapper-div"}
-          [:span {:class "label music-tag" :style (str "background-color:" color)} tag]])]
+          [:span {:class "label music-tag select" :style (str "background-color:" color)} tag]])]
       [:div {:id "selected-tag-div"}
        [:span  "Selected tag"] [:div {:id "selected-tag"} "None"]]]
      [:div {:class "modal-footer"}
       [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Close"]
       [:button {:type "button" :class "btn btn-primary" :id "add-tag"} "Add"]]]]])
-      
+
+(defn edit-song-modal [song-id song-name artist]
+  [:form {:action (str "/music/" song-id) :method "POST"}
+   [:div {:class "modal fade" :id "edit-song-modal"}
+    [:div {:class "modal-dialog"}
+     [:div {:class "modal-content"}
+      [:div {:class "modal-header"}
+       [:button {:type "button" :class "close" :data-dismiss "modal" :aria-hidden "true"} "&times;"]
+       [:h4 {:class "modal-title"} "Edit song"]]
+      [:div {:class "modal-body"} 
+       [:div {:class "song-name input-group"}
+        [:span {:class "input-group-addon"} "New song name:"]
+        [:input {:type "text" :name "newsongname" :class "form-control" :value song-name}]]
+       [:div {:class "artist input-group"}
+        [:span {:class "input-group-addon"} "New artist name:"]
+        [:input {:type "text" :name "newartist" :class "form-control" :value artist}]]]
+      [:div {:class "modal-footer"}
+       [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Close"]
+       [:button {:type "submit" :class "btn btn-primary" :id "edit-song-ok"} "Ok"]]]]]])
+
 (defn song-details [song]
   (let [song-id (get song :_id)
         song-name (get song :name)
@@ -33,14 +52,16 @@
         file-path (get song :generated-file-name)]
        [:div {:id "main-music-detail-div"}
         [:input {:type "hidden" :id "song-id" :value song-id}]
-        [:div {:class "song-name"} song-name]
+        [:div {:class "song-name"} song-name [:a {:data-toggle "modal" :href "#edit-song-modal" :class "btn btn-danger btn-xs"} 
+         [:i {:class "glyphicon glyphicon-pencil"} " "]]]
+        (edit-song-modal song-id song-name artist)
         [:div {:class "artist"} artist]
         [:div {:class "original-file-name"} (str "Original file: " original-file-name)]
         [:div {:class "tags"}
          (for [tag tags]
-           (gen/render-tag-label tag))
+           (gen/render-detail-tag-label tag))
          [:a {:data-toggle "modal" :href "#select-tag-modal" :class "btn btn-primary btn-xs"} 
-          [:i {:class "glyphicon glyphicon-plus"} " "]]
+          [:i {:class "glyphicon glyphicon-tags"} " "]]
          select-tag-modal
          ]
         [:audio {:controls ""}
@@ -61,11 +82,4 @@
        (song-details song)
        ]]]]))
      
-;; [:div {:class "song-name input-group"}
-;;          [:span {:class "input-group-addon"} "Song Name:"]
-;;          [:input {:type "text" :class "form-control" :value song-name}]
-;;          [:span {:class "input-group-addon"} "Edit"]]
-;;         [:div {:class "artist input-group"}
-;;          [:span {:class "input-group-addon"} "Artist:"]
-;;          [:input {:type "text" :class "form-control" :value artist}]
-;;          [:span {:class "input-group-addon"} "Edit"]]
+
