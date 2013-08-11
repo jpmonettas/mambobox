@@ -7,7 +7,6 @@
 
 (defn home-page-view []
     (html5
-     [:html
       gen/head
       [:body
        [:div {:class "container"}
@@ -16,4 +15,4 @@
         [:div {:class "row"}
          (gen/navbar :home)]
         [:div {:class "row"}
-         [:span {:class "glyphicon glyphicon-user"}]]]]]))
+         [:span {:class "glyphicon glyphicon-user"}]]]]))

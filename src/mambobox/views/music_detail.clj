@@ -34,10 +34,10 @@
        [:h4 {:class "modal-title"} "Edit song"]]
       [:div {:class "modal-body"} 
        [:div {:class "song-name input-group"}
-        [:span {:class "input-group-addon"} "New song name:"]
+        [:span {:class "input-group-addon"} "Song:"]
         [:input {:type "text" :name "newsongname" :class "form-control" :value song-name}]]
        [:div {:class "artist input-group"}
-        [:span {:class "input-group-addon"} "New artist name:"]
+        [:span {:class "input-group-addon"} "Artist:"]
         [:input {:type "text" :name "newartist" :class "form-control" :value artist}]]]
       [:div {:class "modal-footer"}
        [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Close"]
@@ -50,27 +50,49 @@
         tags (get song :tags)
         original-file-name (get song :original-file-name)
         file-path (get song :generated-file-name)]
-       [:div {:id "main-music-detail-div"}
-        [:input {:type "hidden" :id "song-id" :value song-id}]
-        [:div {:class "song-name"} song-name [:a {:data-toggle "modal" :href "#edit-song-modal" :class "btn btn-danger btn-xs"} 
-         [:i {:class "glyphicon glyphicon-pencil"} " "]]]
-        (edit-song-modal song-id song-name artist)
-        [:div {:class "artist"} artist]
-        [:div {:class "original-file-name"} (str "Original file: " original-file-name)]
-        [:div {:class "tags"}
-         (for [tag tags]
-           (gen/render-detail-tag-label tag))
-         [:a {:data-toggle "modal" :href "#select-tag-modal" :class "btn btn-primary btn-xs"} 
-          [:i {:class "glyphicon glyphicon-tags"} " "]]
-         select-tag-modal
-         ]
-        [:audio {:controls ""}
-         [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]]))
+    [:div {:id "main-music-detail-div" :class "col-12"}
+     [:div {:class "sub-box"}
+      [:div {:class "sub-box-title"} "Song Info"]
+      [:div {:class "sub-box-content"}
+       [:input {:type "hidden" :id "song-id" :value song-id}]
+       [:div {:class "song-name"} song-name [:a {:data-toggle "modal" :href "#edit-song-modal" :class "btn btn-danger btn-xs"} 
+                                             [:i {:class "glyphicon glyphicon-pencil"} " "]]]
+       (edit-song-modal song-id song-name artist)
+       [:div {:class "artist"} artist]
+       [:div {:class "original-file-name"} (str "Original file: " original-file-name)]
+       [:div {:class "tags"}
+        (for [tag tags]
+          (gen/render-detail-tag-label tag))
+        [:a {:data-toggle "modal" :href "#select-tag-modal" :class "btn btn-primary btn-xs"} 
+         [:i {:class "glyphicon glyphicon-tags"} " "]]
+        select-tag-modal
+        ]
+       [:audio {:controls ""}
+        [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]]]]))
 
+(defn external-related-videos [song]
+  (let [links (get song :external-video-links)
+        song-id (get song :_id)]
+    [:div {:id "main-related-videos-div" :class "col-12"}
+     [:div {:class "sub-box"}
+      [:div {:class "sub-box-title"} "Improvisations and Choreos"]
+      [:div {:class "sub-box-content clearfix"}
+       (for [link links]
+         [:div {:class "video-wrapper sub-box"} 
+          [:div {:class "video-container "} 
+           [:iframe {:type "text/html" :src link :frameborder "0"}]]
+          [:input {:type "hidden" :value link}]
+          [:button {:class "btn btn-danger delete-video-button"} "Remove"]])
+        [:form {:method "POST" :action (str "/music/" song-id "/links/")}
+         [:div {:class "input-group"}
+          [:input {:type "text" :class "form-control" :placeholder "youtube link" :name "newlink"}]
+          [:span {:class "input-group-btn"}
+           [:button {:class "btn btn-info" :type "submit"} "Add"]]]]
+       ]]]))
+    
 
 (defn music-detail-view [song]
   (html5
-   [:html
     gen/head
     [:body
      [:div {:class "container"}
@@ -80,6 +102,9 @@
        (gen/navbar :music)]
       [:div {:class "row"}
        (song-details song)
-       ]]]]))
+       ]
+      [:div {:class "row"}
+       (external-related-videos song)
+       ]]]))
      
 

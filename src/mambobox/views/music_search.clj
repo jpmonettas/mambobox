@@ -9,7 +9,7 @@
   [:div {:class "search-section"}
    [:form {:method "GET" :action "/music/"}
     [:div {:class "input-group"}
-     [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "song name, artist name, etc"}]
+     [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "song, artist, etc"}]
      [:input {:type "hidden" :name "tagfilter" :value tag :id "tag-filter"}]
      [:span {:class "input-group-btn"}
       [:button {:class "btn btn-default" :type "submit"} "Go!"]]]]])
@@ -61,7 +61,6 @@
 
 (defn music-search-view [result-col q tag cur-page num-pages]
     (html5
-     [:html
       gen/head
       [:body
        [:div {:class "container"}
@@ -82,5 +81,5 @@
           (when (not (empty? tag)) (gen/render-tag-label tag "remove" "glyphicon-remove"))]]
         [:div {:class "row"}
          (search-results result-col cur-page num-pages)]
-        ]]]))
+        ]]))
      

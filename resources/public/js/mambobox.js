@@ -46,7 +46,6 @@ $(function (){
 $(function (){
    $(".label.music-tag.search").click(function(){
         var tagName=$(this).text();
-        console.log(tagName);
         $("#tag-filter").val(tagName);
         $(".search-section form").submit();
     });
@@ -70,17 +69,32 @@ $(function (){
        $.ajax({
                 type:"DELETE",
                 url: deleteUrl,
-                error:function(){
+                success:function(){
                    tagElement.remove(); 
                 }
             });
     });
 });
 
+/* For removing a video link */
+$(function (){
+   $(".delete-video-button").click(function(){
+       var videoWraperDiv=$(this).parent(".video-wrapper");
+       var link=videoWraperDiv.find("input").val();
+       var songId=$("#song-id").val();
+       var deleteUrl='/music/' + songId + '/links/' + encodeURIComponent(link);
+       $.ajax({
+                type:"DELETE",
+                url: deleteUrl,
+                success:function(){
+                   videoWraperDiv.remove(); 
+                }
+            });
+    });
+});
 
 
-/*Extracted from IB
- This simply replace/add a parameter in a qstring*/
+/* This simply replace/add a parameter in a qstring*/
 function insertParamSearch(search, key, value)
 {
   key = escape(key); value = escape(value);

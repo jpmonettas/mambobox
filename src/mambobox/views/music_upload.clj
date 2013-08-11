@@ -20,7 +20,6 @@
 
 (defn music-upload-view []
   (html5
-   [:html
     gen/head
     [:body
      [:div {:class "container"}
@@ -30,4 +29,4 @@
        (gen/navbar :music)]
       [:div {:class "row"}
        (file-select)
-       ]]]]))
+       ]]]))

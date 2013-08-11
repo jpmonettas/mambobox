@@ -133,3 +133,62 @@ ol#results-list li a{
 #main-music-detail-div .song-name a{
     margin-left: 13px;
 }
+
+#main-related-videos-div{
+    text-align:center;
+    margin-top:25px;
+}
+
+.sub-box{
+    border:1px solid #3c3c3c;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.sub-box-content{
+    padding:10px;
+}
+
+.sub-box-title{
+    background-color:#993366;
+    height:30px;
+    width:100%;
+    color:#ffffff;
+    font-size:14pt;
+}
+
+
+#main-related-videos-div div.input-group{
+    clear:both;
+    padding-top:20px;
+}
+
+/* Fluid embedded videos */
+
+.video-container {
+	position: relative;
+	padding-bottom: 56.25%;
+	padding-top: 30px;
+	height: 0;
+	overflow: hidden;
+}
+
+.video-container iframe,  
+.video-container object,  
+.video-container embed {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.video-wrapper {
+	width: 500px;
+	max-width: 100%;
+        float:left;
+        margin-right:20px;
+        margin-top:20px;
+}
+

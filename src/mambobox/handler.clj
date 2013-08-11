@@ -18,6 +18,9 @@
   (POST "/music/:musicid/tags/:tagname" [musicid tagname] (mc/add-tag musicid tagname))
   (DELETE "/music/:musicid/tags/:tagname" [musicid tagname] (mc/delete-tag musicid tagname))
 
+  (POST "/music/:musicid/links/" [musicid newlink] (mc/add-related-link musicid newlink))
+  (DELETE "/music/:musicid/links/:link" [musicid link] (mc/del-related-link musicid link))
+
   (GET "/upload" [] (mc/upload-page))
   (POST "/upload" [files] (mc/upload-file files))
 

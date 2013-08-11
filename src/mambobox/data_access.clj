@@ -10,6 +10,9 @@
 (mg/connect!)
 (mg/set-db! (mg/get-db "mambobox"))
 
+
+;; Songs
+
 (defn get-all-songs []
   (mc/find-maps "songs"))
 
@@ -20,13 +23,13 @@
   (mc/insert "songs" {:_id (ObjectId.) 
                       :name name 
                       :artist artist
-                      :tags []
                       :original-file-name original-file-name
                       :generated-file-name generated-file-name}))
-  
+
+;; Song Tags
 
 (defn add-song-tag [song-id tagname]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$push {:tags tagname}}))
+  (mc/update "songs" {:_id (ObjectId. song-id)} {$addToSet {:tags tagname}}))
       
 (defn del-song-tag [song-id tagname]
   (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:tags tagname}}))
@@ -34,3 +37,12 @@
 (defn update-song [song-id song-name artist]
   (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:name song-name :artist artist}})
   (get-song-by-id song-id))
+
+
+;; Song Video Links
+
+(defn add-song-external-video-link [song-id link]
+  (mc/update "songs" {:_id (ObjectId. song-id)} {$addToSet {:external-video-links link}}))
+
+(defn del-song-external-video-link [song-id link]
+  (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:external-video-links link}}))

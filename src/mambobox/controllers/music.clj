@@ -2,6 +2,7 @@
   (:use [mambobox.views.music-search :only [music-search-view]]
         [mambobox.views.music-detail :only [music-detail-view]]
         [mambobox.views.music-upload :only [music-upload-view]]
+        [ring.util.response]
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
@@ -77,3 +78,22 @@
   (data/del-song-tag song-id tag-name)
   {:status 200})
 
+(defn is-youtube-link? [link]
+  (re-matches #".*youtube.com/watch\?.*v=[a-zA-Z0-9\-_]+.*" link))
+
+(defn get-youtube-video-id [link]
+  (second (re-matches #".*youtube.com/watch\?.*v=([a-zA-Z0-9\-_]+).*" link)))
+
+(defn gen-youtube-embeded-link [video-id]
+  (str "http://www.youtube.com/embed/" video-id))
+
+(defn add-related-link [song-id link]
+  (if (is-youtube-link? link)
+    (let [video-id (get-youtube-video-id link)
+          youtube-embeded-link (gen-youtube-embeded-link video-id)]
+      (data/add-song-external-video-link song-id youtube-embeded-link)
+      (redirect (str "/music/" song-id)))
+    {:status 400}))
+
+(defn del-related-link [song-id link]
+  (data/del-song-external-video-link song-id link))
