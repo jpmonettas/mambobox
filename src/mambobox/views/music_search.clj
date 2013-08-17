@@ -9,22 +9,20 @@
   [:div {:class "search-section"}
    [:form {:method "GET" :action "/music/"}
     [:div {:class "input-group"}
-     [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "song, artist, etc"}]
+     [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "tema, artista, etc"}]
      [:input {:type "hidden" :name "tagfilter" :value tag :id "tag-filter"}]
      [:span {:class "input-group-btn"}
-      [:button {:class "btn btn-default" :type "submit"} "Go!"]]]]])
+      [:button {:class "btn btn-default" :type "submit"} "Ir!"]]]]])
 
 (defn tag-filter-accordion []
   [:div {:class "accordion" :id "tag-filter-accordion"}
    [:div {:class "accordion-group"}
     [:div {:class "accordion-heading"}
-     [:a {:class "accordion-toggle" :data-toggle "collapse" :data-parent "#tag-filter-accordion" :href "#collapse"} "Tag filter"]]
+     [:a {:class "accordion-toggle" :data-toggle "collapse" :data-parent "#tag-filter-accordion" :href "#collapse"} "Filtrar por etiqueta"]]
     [:div {:id "collapse" :class "accordion-body collapse"}
      [:div {:class "accordion-inner"}
       [:div {:class "clearfix tags-container"}
-       (for [[tag color] gen/tags-color-map]
-         [:div {:class "label-wrapper-div"}
-          [:span {:class "label music-tag search" :style (str "background-color:" color)} tag]])]]]]])
+              (gen/render-all-tags "search")]]]]])
 
 (defn pagination [num-pages cur-page]
   [:div {:id "pagination-div"}
@@ -39,7 +37,7 @@
 
 
 (defn search-results [result-col cur-page num-pages]
-  [:div {:id "results-main-div"}
+  [:div {:id "results-main-div" :class "col-md-10 col-xs-12"}
    (tag-filter-accordion)
    [:ol {:id "results-list"}
     (for [result result-col
@@ -59,7 +57,7 @@
    (pagination num-pages cur-page)])
 
 
-(defn music-search-view [result-col q tag cur-page num-pages]
+(defn music-search-view [username result-col q tag cur-page num-pages]
     (html5
       gen/head
       [:body
@@ -67,19 +65,22 @@
         [:div {:class "row"}
          gen/banner]
         [:div {:class "row"}
-         (gen/navbar :music)]
+         (gen/navbar :music username)]
         [:div {:class "row"}
-         [:div {:class "col-8 col-offset-2"}
+         [:div {:class "col-md-7 col-md-offset-2 col-xs-8"}
           (search-box q tag)]
-         [:div
+         [:div {:class "col-md-1 col-xs-1"}
           [:a {:href "/upload"}
-           [:button {:class "btn btn-primary" :type "button"} "Upload!"]]]]
+           [:button {:class "btn btn-primary" :type "button"} "Subir!"]]]]
+        (when (or 
+               (not (empty? q))
+               (not (empty? tag)))
+          [:div {:class "row"}
+           [:div {:class "col-md-2"}
+            [:h3  "Resultados:"]]
+           [:div {:class "col-md-1 tag-search"}
+            (when (not (empty? tag)) (gen/render-tag-label tag "remove" "glyphicon-remove"))]])
         [:div {:class "row"}
-         [:div {:class "col-8 col-lg-2"}
-          [:h3  "Search results:"]]
-         [:div {:class "col-3 col-lg-1 tag-search"}
-          (when (not (empty? tag)) (gen/render-tag-label tag "remove" "glyphicon-remove"))]]
-        [:div {:class "row"}
-         (search-results result-col cur-page num-pages)]
-        ]]))
+         (search-results result-col cur-page num-pages)]]
+       (gen/footer-includes)]))
      

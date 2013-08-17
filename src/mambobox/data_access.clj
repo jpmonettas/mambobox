@@ -1,8 +1,10 @@
 (ns mambobox.data-access
   (:require [monger.core :as mg]
             [monger.collection :as mc]
-            [clojure.tools.logging :as log])
-  (:use monger.operators)
+            [clojure.tools.logging :as log]
+            [cemerick.friend.credentials :as creds])
+  (:use monger.operators
+        [mambobox.utils :only [defnlog]])
   (:import [org.bson.types ObjectId]
            [com.mongodb DB WriteConcern]))
 
@@ -19,11 +21,12 @@
 (defn get-song-by-id [id]
   (mc/find-one-as-map "songs" {:_id (ObjectId. id)}))
 
-(defn save-song [name artist original-file-name generated-file-name]
+(defnlog save-song [name artist original-file-name generated-file-name username]
   (mc/insert "songs" {:_id (ObjectId.) 
                       :name name 
                       :artist artist
                       :original-file-name original-file-name
+                      :uploader-username username
                       :generated-file-name generated-file-name}))
 
 ;; Song Tags
@@ -46,3 +49,23 @@
 
 (defn del-song-external-video-link [song-id link]
   (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:external-video-links link}}))
+
+
+;; Users
+
+(defn add-user [username plainpass]
+  (mc/insert "users" {:_id (ObjectId.) :username username :password (creds/hash-bcrypt plainpass)}))
+  
+(defn get-user-by-username [username]
+  (mc/find-one-as-map "users" {:username username}))
+
+(defn get-all-users []
+  (mc/find-maps "users"))
+
+;; Notes
+
+(defn add-new [username newtext]
+  (mc/insert "news" {:_id (ObjectId.) :username username :text newtext}))
+
+(defn get-all-news []
+  (mc/find-maps "news"))

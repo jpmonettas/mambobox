@@ -1,34 +1,54 @@
 (ns mambobox.handler
   (:use [compojure.core]
-        [hiccup.core]
-        [ring.middleware.params]
-        [ring.middleware.multipart-params]
-        [ring.adapter.jetty])
-  (:require [compojure.handler :as handler]
+        [hiccup.core])
+  (:require [cemerick.friend :as friend]
+            (cemerick.friend [workflows :as workflows]
+                             [credentials :as creds])
+            [compojure.handler :as handler]
             [compojure.route :as route]
+            [ring.util.response :as resp]
             [mambobox.controllers.music :as mc]
-            [mambobox.controllers.home :as hc]))
+            [mambobox.controllers.home :as hc]
+            [mambobox.views.login :as lv]
+            [mambobox.data-access :as data]
+            [mambobox.utils :as utils]
+            [clojure.tools.logging :as log]))
 
 
-(defroutes app-routes
+
+(defn current-username [req]
+  (let [current-ident (friend/current-authentication req)
+        username (get current-ident :username)]
+    username))
+                                     
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;            Secured Routes            ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defroutes app-auth-routes
   ;;Music Page
-  (GET "/music/" [q curpage tagfilter] (mc/music-search q tagfilter curpage))
-  (GET "/music/:id" [id] (mc/music-id id))
-  (POST "/music/:id" [id newsongname newartist] (mc/edit-music id newsongname newartist))
-  (POST "/music/:musicid/tags/:tagname" [musicid tagname] (mc/add-tag musicid tagname))
-  (DELETE "/music/:musicid/tags/:tagname" [musicid tagname] (mc/delete-tag musicid tagname))
+  (GET "/music/" [q curpage tagfilter :as req] (mc/music-search (current-username req) q tagfilter curpage))
+  (GET "/music/:id" [id :as req] (mc/music-id (current-username req) id))
+  (POST "/music/:id" [id newsongname newartist :as req] (mc/edit-music (current-username req) id newsongname newartist))
+  (POST "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/add-tag (current-username req) musicid tagname))
+  (DELETE "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/delete-tag (current-username req) musicid tagname))
 
-  (POST "/music/:musicid/links/" [musicid newlink] (mc/add-related-link musicid newlink))
-  (DELETE "/music/:musicid/links/:link" [musicid link] (mc/del-related-link musicid link))
+  (POST "/music/:musicid/links/" [musicid newlink :as req] (mc/add-related-link (current-username req) musicid newlink))
+  (DELETE "/music/:musicid/links/:link" [musicid link :as req] (mc/del-related-link (current-username req) musicid link))
 
-  (GET "/upload" [] (mc/upload-page))
-  (POST "/upload" [files] (mc/upload-file files))
+  (GET "/upload" [:as req] (mc/upload-page (current-username req)))
+  (POST "/upload" [files :as req] (mc/upload-file (current-username req) files))
 
   ;; Home Page
-  (GET "/" [] (hc/home))
+  (GET "/" [:as req] (hc/home (current-username req)))
 
-  ;; Resources
-  (route/resources "/")
+  ;; News
+  (POST "/news/" [newtext :as req] (hc/add-new (current-username req) newtext)) 
+
+  ;; Logout
+  (GET "/logout" req
+    (friend/logout* (resp/redirect (str (:context req) "/"))))
 
   ;; Music Files
   (route/files "/files/" {:root "/home/jmonetta/temp/music"}) 
@@ -36,5 +56,30 @@
   ;; Not Found
   (route/not-found "Not Found"))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;        UNSecured Routes              ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defroutes app-routes
+ 
+  ;; Login Page
+  (GET "/login" [] (lv/login))
+
+  (GET "/favicon.ico" [] (resp/redirect "/"))
+
+  ;; Resources
+  (route/resources "/"))
+
+    
 (def app 
-  (handler/site app-routes))
+  (handler/site 
+   (routes
+    app-routes
+    (friend/authenticate app-auth-routes
+                         {:allow-anon? nil
+                          :login-uri "/login"
+                          :credential-fn (partial creds/bcrypt-credential-fn data/get-user-by-username)
+                          :workflows [(workflows/interactive-form)]}))
+   {:multipart {:store @utils/my-default-store}}))
+    
