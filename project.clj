@@ -8,7 +8,8 @@
                  [com.novemberain/monger "1.5.0"]
                  [org.clojure/tools.logging "0.2.6"]
                  [log4j/log4j "1.2.16"]
-                 [org/jaudiotagger "2.0.3"]]
+                 [org/jaudiotagger "2.0.3"]
+                 [fuzzy-string "0.1.0-SNAPSHOT"]]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler mambobox.handler/app
          :auto-reload? true

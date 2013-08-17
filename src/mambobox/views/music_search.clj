@@ -12,7 +12,7 @@
      [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "tema, artista, etc"}]
      [:input {:type "hidden" :name "tagfilter" :value tag :id "tag-filter"}]
      [:span {:class "input-group-btn"}
-      [:button {:class "btn btn-default" :type "submit"} "Ir!"]]]]])
+      [:button {:class "btn btn-primary" :type "submit"} "Ir!"]]]]])
 
 (defn tag-filter-accordion []
   [:div {:class "accordion" :id "tag-filter-accordion"}
@@ -67,11 +67,8 @@
         [:div {:class "row"}
          (gen/navbar :music username)]
         [:div {:class "row"}
-         [:div {:class "col-md-7 col-md-offset-2 col-xs-8"}
-          (search-box q tag)]
-         [:div {:class "col-md-1 col-xs-1"}
-          [:a {:href "/upload"}
-           [:button {:class "btn btn-primary" :type "button"} "Subir!"]]]]
+         [:div {:class "col-md-6 col-md-offset-3 col-xs-12"}
+          (search-box q tag)]]
         (when (or 
                (not (empty? q))
                (not (empty? tag)))

@@ -53,6 +53,10 @@
     [:div {:id "banner-text-div"} "MamboBox"]
     [:div {:id "logo-div"}]])
 
+;; <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+;;         <ul class="dropdown-menu">
+;;           <li><a href="#">Action</a></li>
+;;           <li><a href="#">Another action</a></li>
 
 (defn navbar [active-tab username]
   [:nav {:class "navbar" :role "navigation"}
@@ -67,8 +71,13 @@
     [:ul {:class "nav navbar-nav"}
      [:li (when (= active-tab :home) {:class "active"})  
       [:a {:href "/"} "Inicio"]]
-     [:li (when (= active-tab :music) {:class "active"}) 
-      [:a {:href "/music/"} "Música"]]]
+     [:li {:class (str "dropdown " (when (= active-tab :music) "active"))} 
+           [:a {:href "#" :class "dropdown-toggle" :data-toggle "dropdown"} "Musica" [:b {:class "caret"}]]
+           [:ul {:class "dropdown-menu"}
+            [:li 
+             [:a {:href "/music/"} "Buscar"]]
+            [:li 
+             [:a {:href "/upload"} "Subir"]]]]]
     [:ul {:class "nav navbar-nav navbar-right"}
      [:li [:a {:class "nav navbar-nav navbar-right" :href "/logout"} "Salir"]]]]])
     

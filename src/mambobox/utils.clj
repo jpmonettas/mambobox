@@ -51,6 +51,9 @@
        (log/debug "Returned: " ret#)
        ret#)))
 
+
+
+
 ;; This if for the musci ID3 tag library
 (defn tags [file]
   (let [fields (apply conj {} (map (fn [n] [(keyword (. (. n toString) toLowerCase)) n]) (. FieldKey values)))

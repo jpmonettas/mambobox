@@ -7,9 +7,16 @@
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [fuzzy-string.core :as fuzz-str]))
 
 
+(defn accept-song-for-query? [song qstring]
+  (let [song-name (lower-case (get song :name))
+        song-artist (lower-case (get song :artist))]                              
+    (or (> (fuzz-str/dice song-name qstring) 0.5) 
+        (> (fuzz-str/dice song-artist qstring) 0.5)))) 
+                          
 (defn song-contains-qstring? [song qstring]
     (or (utils/str-contains (lower-case (get song :name)) qstring)
         (utils/str-contains (lower-case (get song :artist)) qstring)))
@@ -26,7 +33,8 @@
         all-songs (data/get-all-songs)
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
-                                         (song-contains-qstring? song processed-q))
+                                         ;;(song-contains-qstring? song processed-q))
+                                         (accept-song-for-query? song processed-q))
                                        all-songs)
                                all-songs)
         tag-filtered-songs (if (not (empty? tag)) 
