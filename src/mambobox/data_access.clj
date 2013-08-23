@@ -21,13 +21,17 @@
 (defn get-song-by-id [id]
   (mc/find-one-as-map "songs" {:_id (ObjectId. id)}))
 
-(defnlog save-song [name artist original-file-name generated-file-name username]
-  (mc/insert "songs" {:_id (ObjectId.) 
+(defn save-song [name artist original-file-name generated-file-name username]
+  (mc/insert-and-return "songs" {:_id (ObjectId.) 
                       :name name 
                       :artist artist
                       :original-file-name original-file-name
                       :uploader-username username
+                      :visits 0
                       :generated-file-name generated-file-name}))
+
+(defn track-song-access [song-id]
+  (mc/update "songs" {:_id (ObjectId. song-id)} {$inc {:visits 1}}))
 
 ;; Song Tags
 
@@ -38,7 +42,10 @@
   (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:tags tagname}}))
 
 (defn update-song [song-id song-name artist]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:name song-name :artist artist}})
+  (when (not (empty? song-name))
+    (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:name song-name}}))
+  (when (not (empty? artist))
+    (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:artist artist}}))
   (get-song-by-id song-id))
 
 

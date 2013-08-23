@@ -119,6 +119,12 @@ ul.pagination li{
     margin-bottom:30px;
 }
 
+
+.tags-box{
+    margin-top:30px;
+}
+
+
 #tag-filter-accordion .tags-container{
     
 }
@@ -203,6 +209,10 @@ ul.pagination li{
 
 #login-main-div{
     margin-top:10%;
+}
+
+#progress{
+    margin-top:8px;
 }
 
 /* Fluid embedded videos */

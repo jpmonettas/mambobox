@@ -18,8 +18,7 @@
      [:div {:class "row"}
       [:textarea {:name "newtext" :class "col-md-8 col-md-offset-2 col-xs-12" :rows "5"}]]
      [:div {:class "row"}
-      [:div {:class "col-md-2 col-md-offset-8 col-xs-2 col-xs-offset-8"}
-       [:button {:class "btn btn-primary" :type "submit"} "Agregar"]]]]]])
+      [:button {:class "btn btn-primary col-md-2 col-md-offset-8 col-xs-2 col-xs-offset-8" :type "submit"} "Agregar"]]]]])
 
       
 

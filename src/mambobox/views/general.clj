@@ -53,13 +53,26 @@
     [:div {:id "banner-text-div"} "MamboBox"]
     [:div {:id "logo-div"}]])
 
-;; <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-;;         <ul class="dropdown-menu">
-;;           <li><a href="#">Action</a></li>
-;;           <li><a href="#">Another action</a></li>
+(defn render-all-tags [div-extra-class]
+  (html 
+   (for [[tag color] ordered-tags-array]
+     [:div {:class "label-wrapper-div"}
+      [:span {:class (str "label music-tag " div-extra-class) :style (str "background-color:" color)} tag]])))
+
+(defn tag-filter-accordion [title extra-class]
+  [:div {:class "accordion" :id "tags-accordion"}
+   [:div {:class "panel-group"}
+    [:div {:class "panel panel-default"}
+     [:div {:class "panel-heading"}
+      [:div {:class "panel-title"}
+       [:a {:class "accordion-toggle" :data-toggle "collapse" :data-parent "#tags-accordion" :href "#collapse"} title]]]
+    [:div {:id "collapse" :class "panel-collapse collapse"}
+     [:div {:class "panel-body"}
+      [:div {:class "clearfix tags-container"}
+              (render-all-tags extra-class)]]]]]])
 
 (defn navbar [active-tab username]
-  [:nav {:class "navbar" :role "navigation"}
+  [:nav {:class "navbar navbar-default" :role "navigation"}
    [:div {:class "navbar-header"}
     [:button {:type "button" :class "navbar-toggle" :data-toggle "collapse" :data-target ".navbar-ex1-collapse"}
      [:span {:class "sr-only"} "Toggle navigation"]
@@ -97,8 +110,3 @@
     [:span {:class (str "label music-tag " extra-class) :style (str "background-color:" tag-color)}
       tag-name (when icon [:i {:class (str "glyphicon " icon-name)}])]))
 
-(defn render-all-tags [div-extra-class]
-  (html 
-   (for [[tag color] ordered-tags-array]
-     [:div {:class "label-wrapper-div"}
-      [:span {:class (str "label music-tag " div-extra-class) :style (str "background-color:" color)} tag]])))

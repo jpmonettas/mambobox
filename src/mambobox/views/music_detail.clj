@@ -6,21 +6,21 @@
 
 
                     
-(def select-tag-modal 
-  [:div {:class "modal fade active" :id "select-tag-modal"}
-   [:div {:class "modal-dialog"}
-    [:div {:class "modal-content"}
-     [:div {:class "modal-header"}
-      [:button {:type "button" :class "close" :data-dismiss "modal" :aria-hidden "true"} "&times;"]
-      [:h4 {:class "modal-title"} "Seleccion de etiqueta"]]
-     [:div {:class "modal-body"} 
-      [:div {:id "tags-container" :class "tags-container clearfix"}
-       (gen/render-all-tags "select")]
-      [:div {:id "selected-tag-div"}
-       [:span  "Etiqueta seleccionada"] [:div {:id "selected-tag"} "Ninguna"]]]
-     [:div {:class "modal-footer"}
-      [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
-      [:button {:type "button" :class "btn btn-primary" :id "add-tag"} "Añadir"]]]]])
+;; (def select-tag-modal 
+;;   [:div {:class "modal fade active" :id "select-tag-modal"}
+;;    [:div {:class "modal-dialog"}
+;;     [:div {:class "modal-content"}
+;;      [:div {:class "modal-header"}
+;;       [:button {:type "button" :class "close" :data-dismiss "modal" :aria-hidden "true"} "&times;"]
+;;       [:h4 {:class "modal-title"} "Seleccion de etiqueta"]]
+;;      [:div {:class "modal-body"} 
+;;       [:div {:id "tags-container" :class "tags-container clearfix"}
+;;        (gen/render-all-tags "select")]
+;;       [:div {:id "selected-tag-div"}
+;;        [:span  "Etiqueta seleccionada"] [:div {:id "selected-tag"} "Ninguna"]]]
+;;      [:div {:class "modal-footer"}
+;;       [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
+;;       [:button {:type "button" :class "btn btn-primary" :id "add-tag"} "Añadir"]]]]])
 
 (defn edit-song-modal [song-id song-name artist]
   [:form {:action (str "/music/" song-id) :method "POST"}
@@ -41,6 +41,8 @@
        [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
        [:button {:type "submit" :class "btn btn-primary" :id "edit-song-ok"} "Aceptar"]]]]]])
 
+
+
 (defn song-details [song]
   (let [song-id (get song :_id)
         song-name (get song :name)
@@ -53,20 +55,37 @@
      [:div {:class "sub-box"}
       [:div {:class "sub-box-title"} "Información del tema"]
       [:div {:class "sub-box-content"}
-       [:input {:type "hidden" :id "song-id" :value song-id}]
-       [:div {:class "song-name"} song-name [:a {:data-toggle "modal" :href "#edit-song-modal" :class "btn btn-danger btn-xs"} 
-                                             [:i {:class "glyphicon glyphicon-pencil"} " "]]]
-       (edit-song-modal song-id song-name artist)
-       [:div {:class "artist"} artist]
+
+       [:form {:action (str "/music/" song-id) :method "POST"}
+        
+        [:div {:class "song-name input-group input-group-lg"}
+         [:span {:class "input-group-addon"} "Tema:"]
+         [:input {:type "text" :name "newsongname" :class "form-control" :value song-name :disabled ""}]
+         [:span {:class "input-group-btn"}
+          [:button {:class "btn btn-danger song-edit-button" :type "button"} [:i {:class "glyphicon glyphicon-pencil"} " "]]
+          [:button {:class "btn btn-success" :type "submit" :style "display:none"} [:i {:class "glyphicon glyphicon-ok"} " "]]]]
+        
+        [:div {:class "artist input-group input-group-sm"}
+         [:span {:class "input-group-addon"} "Artista:"]
+         [:input {:type "text" :name "newartist" :class "form-control" :value artist :disabled ""}]
+         [:span {:class "input-group-btn"}
+          [:button {:class "btn btn-danger song-edit-button" :type "button"} [:i {:class "glyphicon glyphicon-pencil"} " "]]
+          [:button {:class "btn btn-success" :type "submit" :style "display:none"} [:i {:class "glyphicon glyphicon-ok"} " "]]]]]
+
+        
+        [:input {:type "hidden" :id "song-id" :value song-id}]
+       
        [:div {:class "soft-message"} (str "Archivo original: " original-file-name)]
        [:div {:class "soft-message"} (str "Subido por: " uploader-username)]
        
        [:div {:class "tags"}
         (for [tag tags]
           (gen/render-detail-tag-label tag))
-        [:a {:data-toggle "modal" :href "#select-tag-modal" :class "btn btn-primary btn-xs"} 
-         [:i {:class "glyphicon glyphicon-tags"} " "]]
-        select-tag-modal
+        [:div {:class "tags-box"}
+        (gen/tag-filter-accordion "Agregar Tags" "detail")]
+        ;; [:a {:data-toggle "modal" :href "#select-tag-modal" :class "btn btn-primary btn-xs"} 
+        ;;  [:i {:class "glyphicon glyphicon-tags"} " "]]
+        
         ]
        [:audio {:controls ""}
         [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]]]]))

@@ -6,30 +6,19 @@
 
 
 (defn file-select []
-  [:div
+  [:div {:class "container"}
    [:div {:class "row"}
-    [:div  {:class "col-offset-5 col-7 upload-button-div"}
-    [:span {:class "btn btn-success fileinput-button"}
-     [:i {:class "icon-plus icon-white"}]
-     [:span "Selecciona archivo"]
-     [:input {:id "fileupload" :type "file" :name "files" :data-url "/upload" :multiple nil}]]]]
+    [:div {:class "col-md-3 col-xs-3"}
+     [:span {:class "btn btn-success fileinput-button"}
+      [:i {:class "icon-plus icon-white"}]
+      [:span "Seleccionar archivos"]
+      [:input {:id "fileupload" :type "file" :name "files[]" :multiple ""}]]]
+    [:div {:class "col-md-9 col-xs-9"}
+     [:div {:id "progress" :class "progress"}
+      [:div {:class "progress-bar progress-bar-success"}]]]]
    [:div {:class "row"}
-    [:div  {:class "col-offset-1 col-10"}
-     [:div {:id "progress" :class "progress progress-success progress-striped"}
-      [:div {:class "bar"}]]]]])
+    [:div {:id "files" :class "files"}]]])
 
-(defn file-select2 []
-  [:div
-   [:span {:class "btn btn-success fileinput-button"}
-    [:i {:class "icon-plus icon-white"}]
-    [:span "Add files..."]
-    [:input {:id "fileupload" :type "file" :name "files[]" :multiple ""}]]
-   [:br]
-   [:br]
-   [:div {:id "progress" :class "progress"}
-    [:div {:class "progress-bar progress-bar-success"}]]
-   [:div {:id "files" :class "files"}]
-   [:br]])
    
 
 (defn music-upload-view [username]
@@ -42,6 +31,5 @@
       [:div {:class "row"}
        (gen/navbar :music username)]
       [:div {:class "row"}
-       (file-select2)
-       ]]
+       (file-select)]]
      (gen/footer-includes)]))

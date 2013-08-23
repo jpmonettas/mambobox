@@ -14,15 +14,6 @@
      [:span {:class "input-group-btn"}
       [:button {:class "btn btn-primary" :type "submit"} "Ir!"]]]]])
 
-(defn tag-filter-accordion []
-  [:div {:class "accordion" :id "tag-filter-accordion"}
-   [:div {:class "accordion-group"}
-    [:div {:class "accordion-heading"}
-     [:a {:class "accordion-toggle" :data-toggle "collapse" :data-parent "#tag-filter-accordion" :href "#collapse"} "Filtrar por etiqueta"]]
-    [:div {:id "collapse" :class "accordion-body collapse"}
-     [:div {:class "accordion-inner"}
-      [:div {:class "clearfix tags-container"}
-              (gen/render-all-tags "search")]]]]])
 
 (defn pagination [num-pages cur-page]
   [:div {:id "pagination-div"}
@@ -38,7 +29,7 @@
 
 (defn search-results [result-col cur-page num-pages]
   [:div {:id "results-main-div" :class "col-md-10 col-xs-12"}
-   (tag-filter-accordion)
+   (gen/tag-filter-accordion "Filtrar por etiqueta" "search")
    [:ol {:id "results-list"}
     (for [result result-col
           :let [song-id (get result :_id)

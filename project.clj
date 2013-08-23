@@ -9,7 +9,9 @@
                  [org.clojure/tools.logging "0.2.6"]
                  [log4j/log4j "1.2.16"]
                  [org/jaudiotagger "2.0.3"]
-                 [fuzzy-string "0.1.0-SNAPSHOT"]]
+                 [fuzzy-string "0.1.0-SNAPSHOT"]
+                 [org.clojure/data.json "0.2.2"]
+                 [digest "1.3.0"]]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler mambobox.handler/app
          :auto-reload? true

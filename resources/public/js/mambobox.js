@@ -1,23 +1,3 @@
-/* Firing the file upload */
-$(function () {
-    $('#fileupload').fileupload({
-        dataType: 'json',
-        done: function (e, data) {
-            $.each(data.result.files, function (index, file) {
-                $('<p/>').text(file.name).appendTo(document.body);
-            });
-        },
-	progressall: function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            $('#progress .bar').css(
-		'width',
-		progress + '%'
-            );
-	}
-    });
-});
-
-
 /* Controlling the pagination buttons */
 $(function (){
     $("ul.pagination li.page-link:not(.active) span").click(function(){
@@ -39,6 +19,15 @@ $(function (){
         var curSearchString=document.location.search;
         var newSearch=insertParamSearch(curSearchString,"curpage",pageNumber);
         document.location.search=newSearch;
+    });
+});
+
+/* For editing song fields */
+$(function (){
+    $(".song-edit-button").click(function(){
+        $($(this).parent().siblings("input")[0]).prop('disabled',false);
+        $(this).hide();
+        $($(this).siblings("button")[0]).show();
     });
 });
 
@@ -118,15 +107,10 @@ function insertParamSearch(search, key, value)
  
 
 $(document).ready(function (){
-    /* For tag selection in the modal */
-    $(".label-wrapper-div").click(function(){
-        var labelHtml=$(this).html();
-        $("#selected-tag").html(labelHtml);
-    });
-    $("#add-tag").click(function(){
+    $("#main-music-detail-div .tags-box .label-wrapper-div").click(function(){
         var songId=$("#song-id").val();
-        var tagHtml=$("#selected-tag").html();
-        var tagName=$("#selected-tag span").text();
+        var tagHtml=$(this).html();
+        var tagName=$(tagHtml).text();
         var postUrl="/music/" + songId + "/tags/" + tagName;
         if(tagName){
             $.ajax({
@@ -134,7 +118,6 @@ $(document).ready(function (){
                 url: postUrl,
                 success:function(){
                     $("#main-music-detail-div .tags").prepend(tagHtml);
-                    $('#select-tag-modal').modal('hide');
                 }
             });
         }
@@ -142,41 +125,41 @@ $(document).ready(function (){
 
 });
 
-
-/* For the upload plugin */
+// For the upload plugin
 $(function () {
     'use strict';
     // Change this to the location of your server-side upload handler:
     var url = "/upload";
     var uploadButton = $('<button/>')
-            .addClass('btn btn-primary')
-            .prop('disabled', true)
-            .text('Processing...')
-            .on('click', function () {
-                var $this = $(this),
-                    data = $this.data();
-                $this
-                    .off('click')
-                    .text('Abort')
-                    .on('click', function () {
-                        $this.remove();
-                        data.abort();
-                    });
-                data.submit().always(function () {
+        .addClass('btn btn-primary')
+        .prop('disabled', true)
+        .text('Processing...')
+        .on('click', function () {
+            var $this = $(this),
+                data = $this.data();
+            $this
+                .off('click')
+                .text('Abort')
+                .on('click', function () {
                     $this.remove();
+                    data.abort();
                 });
+            data.submit().always(function () {
+                $this.remove();
             });
+        });
     $('#fileupload').fileupload({
         url: url,
+        filesContainer: $('#upload_files_container'),
         dataType: 'json',
         autoUpload: false,
         acceptFileTypes: /(\.|\/)(mp3)$/i,
-        maxFileSize: 10000000, // 10 MB
+        maxFileSize: 20000000, // 20 MB
     }).on('fileuploadadd', function (e, data) {
-        data.context = $('<div/>').appendTo('#files');
+        data.context = $('<div class="col-md-4 col-md-offset-4"/>').appendTo('#files');
         $.each(data.files, function (index, file) {
             var node = $('<p/>')
-                    .append($('<span/>').text(file.name));
+                .append($('<span/>').text(file.name));
             if (!index) {
                 node
                     .append('<br>')
@@ -227,3 +210,4 @@ $(function () {
     }).prop('disabled', !$.support.fileInput)
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
+

@@ -3,12 +3,13 @@
         [mambobox.views.music-detail :only [music-detail-view]]
         [mambobox.views.music-upload :only [music-upload-view]]
         [ring.util.response]
-        [mambobox.utils :only [defnlog]]
+        [mambobox.utils :only [defnlog dlet]]
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
             [clojure.tools.logging :as log]
-            [fuzzy-string.core :as fuzz-str]))
+            [fuzzy-string.core :as fuzz-str]
+            [clojure.data.json :as json]))
 
 
 (defn accept-song-for-query? [song qstring]
@@ -17,10 +18,6 @@
     (or (> (fuzz-str/dice song-name qstring) 0.5) 
         (> (fuzz-str/dice song-artist qstring) 0.5)))) 
                           
-(defn song-contains-qstring? [song qstring]
-    (or (utils/str-contains (lower-case (get song :name)) qstring)
-        (utils/str-contains (lower-case (get song :artist)) qstring)))
-
 (defn song-contains-tag? [song tag]
   (let [tags (get song :tags)]
     (some #{tag} tags)))
@@ -29,25 +26,24 @@
 (def page-size 10)
 
 (defn music-search [username q tag cur-page]
-  (let [processed-q (when q (lower-case q))
+  (dlet [processed-q (when q (lower-case q))
         all-songs (data/get-all-songs)
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
-                                         ;;(song-contains-qstring? song processed-q))
                                          (accept-song-for-query? song processed-q))
                                        all-songs)
                                all-songs)
         tag-filtered-songs (if (not (empty? tag)) 
-                               (filter (fn [song]
-                                         (song-contains-tag? song tag))
-                                       query-filtered-songs)
-                               query-filtered-songs)
+                             (filter (fn [song]
+                                       (song-contains-tag? song tag))
+                                     query-filtered-songs)
+                             query-filtered-songs)
         cur-page (if cur-page
                    (utils/parse-int cur-page)
                    1)
         cant-filtered-songs (count tag-filtered-songs)
         num-pages (+ (quot cant-filtered-songs page-size) 
-                      (if (> (mod cant-filtered-songs page-size) 0) 1 0))
+                     (if (> (mod cant-filtered-songs page-size) 0) 1 0))
         cur-page-songs (let [first-song (inc (* (dec cur-page) page-size))
                              last-song (dec (+ first-song page-size))]
                          (log/debug "Cutting the list from " first-song " to " last-song)
@@ -58,11 +54,12 @@
 
 (defn music-id [username id]
   (let [song (data/get-song-by-id id)]
+    (data/track-song-access id)
     (music-detail-view username song)))
 
 (defn edit-music [username id song-name artist] 
   (let [song (data/update-song id song-name artist)]
-    (music-detail-view song)))
+    (music-detail-view username song)))
 
 (defn upload-page [username]
   (music-upload-view username))
@@ -70,21 +67,30 @@
 (def upload-dir "/home/jmonetta/temp/music/")
 
 (defnlog upload-file [username file]
-  (let [new-file-name (utils/gen-uuid)
-        file-map (first file)
+  (let [file-map (first file)
         file-name (file-map :filename)
         temp-file (file-map :tempfile)
+        size (file-map :size)
+        generated-file-name (utils/gen-uuid temp-file)
         metadata (utils/get-metadata temp-file)
-        metadata-tags (metadata :tags)
-        title-tag (first (metadata-tags :title))
-        artist-tag (first (metadata-tags :artist))
-        size (utils/save-file-to-disk file-map new-file-name upload-dir)
+        metadata-tags (when metadata
+                        (metadata :tags))
+        title-tag (when metadata-tags
+                    (first (metadata-tags :title)))
+        artist-tag (when metadata-tags
+                     (first (metadata-tags :artist)))
         song-name (if (not (empty? title-tag)) title-tag file-name)
         song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")]
-    (data/save-song song-name song-artist file-name new-file-name username)
-    {:status 200
-       :size size
-       :headers {"Content-Type" "text/html"}}))
+    (utils/save-file-to-disk file-map generated-file-name upload-dir)
+    (let [created-song (data/save-song song-name
+                                      song-artist
+                                      file-name
+                                      generated-file-name username)] 
+      (json/write-str {:files [{:name file-name
+                                :size size
+                                :url (str "/music/" (get created-song :_id))}]}))))
+
+
 
 (defn add-tag [username song-id tag-name]
   (data/add-song-tag song-id tag-name)

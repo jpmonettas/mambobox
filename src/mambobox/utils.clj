@@ -4,20 +4,19 @@
         [ring.adapter.jetty]
         [compojure.core]
         [clojure.tools.logging :as log]
-        [clojure.java.io :as io])
+        [clojure.java.io :as io]
+        [digest])
   (:import [java.io File]
            [java.util UUID]
            [java.lang Integer]
            [org.jaudiotagger.audio AudioFileIO]
            [org.jaudiotagger.tag FieldKey]))
 
-(defn gen-uuid [] (str (UUID/randomUUID)))
+(defn gen-uuid [file] (md5 file))
 
 (defn save-file-to-disk [file new-file-name dest-dir]
-  (let [size (file :size)
-        actual-file (file :tempfile)]
-    (do
-      (copy actual-file (File. (str dest-dir new-file-name))))))
+  (let [actual-file (file :tempfile)]
+      (copy actual-file (File. (str dest-dir new-file-name)))))
 
 (defn str-contains [str-1 str-2]
   (. str-1 contains str-2))
@@ -72,7 +71,7 @@
     (let [file (AudioFileIO/read tfile)]
       {:tags (tags file)
      :audioheader (audioheader file)})
-    (catch Exception e (log/error "Error while reading musci file tag"))))
+    (catch Exception e (log/error "Error while reading music file tag"))))
 
 
 
@@ -121,4 +120,67 @@
 
 (def my-default-store
   (delay (my-temp-file-store)))
+
+
+
+;; (dlet [a 5
+;;        b (i)
+;;        d (d* (+ 5 6))]
+;;    (f1)
+;;    (f2))
+
+;; (let [a (j)
+;;       b (i)
+;;       d (let [XX w]
+;;           (print XX)
+;;           XX)]
+;;   (f1)
+;;   (f2))
+
+
+
+
+;; (defmacro dlet [bindings & body-forms]
+;;   `(let 
+;;        ~(let [bind-pairs (partition 2 bindings)]
+;;           (into []
+;;                 (reduce 
+;;                  concat
+;;                  (map 
+;;                   (fn [[bind-name bind-form]]
+;;                     (if (and (seq? bind-form) (= (first bind-form) 'D*))
+;;                       [bind-name `(let [res# ~(second bind-form)]
+;;                                     (log/debug (quote ~bind-name)
+;;                                                ":"
+;;                                                (with-out-str (clojure.pprint/pprint res#)))
+;;                                     res#)]
+;;                       [bind-name bind-form]))
+;;                   bind-pairs))))
+;;      ~@body-forms))
+
+(defn symbol-starts-with-*? [sym]
+  (= (get (name sym) 0) \*))
+
+(defn remove-mark-from-symbol [sym]
+  (symbol (subs (name sym) 1)))
+
+(defmacro dlet [bindings & body-forms]
+  `(let 
+       ~(let [bind-pairs (partition 2 bindings)]
+          (into []
+                (reduce 
+                 concat
+                 (map 
+                  (fn [[bind-name bind-form]]
+                    (if (symbol-starts-with-*? bind-name) 
+                      [(remove-mark-from-symbol bind-name) `(let [res# ~bind-form]
+                                                              (log/debug (quote ~bind-name)
+                                                                         ":"
+                                                                         (with-out-str (clojure.pprint/pprint res#)))
+                                                              res#)]
+                      [bind-name bind-form]))
+                  bind-pairs))))
+     ~@body-forms))
+  
+
 
