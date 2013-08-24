@@ -5,7 +5,9 @@
         [compojure.core]
         [clojure.tools.logging :as log]
         [clojure.java.io :as io]
-        [digest])
+        [digest]
+        [clj-time.format :as ctf]
+        [clj-time.coerce :as ctc])
   (:import [java.io File]
            [java.util UUID]
            [java.lang Integer]
@@ -13,6 +15,10 @@
            [org.jaudiotagger.tag FieldKey]))
 
 (defn gen-uuid [file] (md5 file))
+
+(defn format-date [date]
+  (let [formatter (ctf/formatter "dd/MM/yyyy hh:mm")]
+    (ctf/unparse formatter (from-date date))))
 
 (defn save-file-to-disk [file new-file-name dest-dir]
   (let [actual-file (file :tempfile)]

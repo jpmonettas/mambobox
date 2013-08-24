@@ -88,6 +88,11 @@ ul.pagination li{
     text-align:center;
 }
 
+#main-music-detail-div .input-group-btn button{
+    border-radius:0 6px 6px 0;
+}
+
+
 #main-music-detail-div .song-name{
     font-size: 16pt;
     margin-bottom:10px;
@@ -195,6 +200,10 @@ ul.pagination li{
     margin-bottom: 5px;
 }
 
+.new .date-created{
+    color:#adadad;
+}
+
 #news-main-div button{
     margin-top:10px;
 }
@@ -206,6 +215,7 @@ ul.pagination li{
     padding: 10px;
     margin-bottom:10px;
 }
+
 
 #login-main-div{
     margin-top:10%;

@@ -92,7 +92,7 @@
             [:li 
              [:a {:href "/upload"} "Subir"]]]]]
     [:ul {:class "nav navbar-nav navbar-right"}
-     [:li [:a {:class "nav navbar-nav navbar-right" :href "/logout"} "Salir"]]]]])
+     [:li [:a {:href "/logout"} [:i {:class "glyphicon glyphicon-log-out"}] "Salir" ]]]]])
     
 
 (defn render-detail-tag-label [tag-name]

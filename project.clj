@@ -1,7 +1,7 @@
 (defproject mambobox "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.5.1"]                 
                  [com.cemerick/friend "0.2.0-SNAPSHOT"]
                  [compojure "1.1.5"]
                  [hiccup "1.0.4"]
@@ -11,7 +11,9 @@
                  [org/jaudiotagger "2.0.3"]
                  [fuzzy-string "0.1.0-SNAPSHOT"]
                  [org.clojure/data.json "0.2.2"]
-                 [digest "1.3.0"]]
+                 [digest "1.3.0"]
+                 [slingshot "0.10.3"]
+                 [clj-time "0.6.0"]]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler mambobox.handler/app
          :auto-reload? true

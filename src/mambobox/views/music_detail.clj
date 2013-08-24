@@ -58,14 +58,14 @@
 
        [:form {:action (str "/music/" song-id) :method "POST"}
         
-        [:div {:class "song-name input-group input-group-lg"}
+        [:div {:class "song-name input-group"}
          [:span {:class "input-group-addon"} "Tema:"]
-         [:input {:type "text" :name "newsongname" :class "form-control" :value song-name :disabled ""}]
+         [:input {:type "text" :name "newsongname" :class "form-control input-lg" :value song-name :disabled ""}]
          [:span {:class "input-group-btn"}
-          [:button {:class "btn btn-danger song-edit-button" :type "button"} [:i {:class "glyphicon glyphicon-pencil"} " "]]
-          [:button {:class "btn btn-success" :type "submit" :style "display:none"} [:i {:class "glyphicon glyphicon-ok"} " "]]]]
+          [:button {:class "btn btn-danger song-edit-button input-lg" :type "button"} [:i {:class "glyphicon glyphicon-pencil"} " "]]
+          [:button {:class "btn btn-success input-lg" :type "submit" :style "display:none"} [:i {:class "glyphicon glyphicon-ok"} " "]]]]
         
-        [:div {:class "artist input-group input-group-sm"}
+        [:div {:class "artist input-group"}
          [:span {:class "input-group-addon"} "Artista:"]
          [:input {:type "text" :name "newartist" :class "form-control" :value artist :disabled ""}]
          [:span {:class "input-group-btn"}

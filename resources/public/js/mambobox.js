@@ -178,8 +178,9 @@ $(function () {
         }
         if (file.error) {
             node
-                .append('<br>')
-                .append(file.error);
+                //.append('<br>')
+                //.append(file.error);
+                .append($('<div class="alert alert-danger"/>').text("Solo archivos mp3 soportados actualmente"));
         }
         if (index + 1 === data.files.length) {
             data.context.find('button')
@@ -194,15 +195,23 @@ $(function () {
         );
     }).on('fileuploaddone', function (e, data) {
         $.each(data.result.files, function (index, file) {
-            var link = $('<a>')
-                .attr('target', '_blank')
-                .prop('href', file.url);
-            $(data.context.children()[index])
-                .wrap(link);
+            if(!file.error){
+                var link = $('<a>')
+                    .attr('target', '_blank')
+                    .prop('href', file.url);
+                $(data.context.children()[index])
+                    .wrap(link);
+            }else{
+                var error = $('<div class="alert alert-danger"/>').text(file.error);
+                $(data.context.children()[index])
+                    .append('<br>')
+                    .append(error);
+            }  
         });
+              
     }).on('fileuploadfail', function (e, data) {
         $.each(data.result.files, function (index, file) {
-            var error = $('<span/>').text(file.error);
+            var error = $('<div class="alert alert-danger"/>').text(file.error);
             $(data.context.children()[index])
                 .append('<br>')
                 .append(error);

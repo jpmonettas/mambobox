@@ -4,13 +4,13 @@
         [mambobox.views.music-upload :only [music-upload-view]]
         [ring.util.response]
         [mambobox.utils :only [defnlog dlet]]
+        [slingshot.slingshot :only [throw+ try+]]
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
             [clojure.tools.logging :as log]
             [fuzzy-string.core :as fuzz-str]
             [clojure.data.json :as json]))
-
 
 (defn accept-song-for-query? [song qstring]
   (let [song-name (lower-case (get song :name))
@@ -66,29 +66,41 @@
 
 (def upload-dir "/home/jmonetta/temp/music/")
 
-(defnlog upload-file [username file]
-  (let [file-map (first file)
-        file-name (file-map :filename)
-        temp-file (file-map :tempfile)
-        size (file-map :size)
-        generated-file-name (utils/gen-uuid temp-file)
-        metadata (utils/get-metadata temp-file)
-        metadata-tags (when metadata
-                        (metadata :tags))
-        title-tag (when metadata-tags
-                    (first (metadata-tags :title)))
-        artist-tag (when metadata-tags
-                     (first (metadata-tags :artist)))
-        song-name (if (not (empty? title-tag)) title-tag file-name)
-        song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")]
-    (utils/save-file-to-disk file-map generated-file-name upload-dir)
-    (let [created-song (data/save-song song-name
-                                      song-artist
-                                      file-name
-                                      generated-file-name username)] 
-      (json/write-str {:files [{:name file-name
-                                :size size
-                                :url (str "/music/" (get created-song :_id))}]}))))
+(defn upload-file [username file]
+  (try+
+   (let [file-map (first file)
+         file-name (file-map :filename)
+         temp-file (file-map :tempfile)
+         size (file-map :size)
+         generated-file-name (utils/gen-uuid temp-file) ;; md5sum
+         metadata (utils/get-metadata temp-file)
+         metadata-tags (when metadata
+                         (metadata :tags))
+         title-tag (when metadata-tags
+                     (first (metadata-tags :title)))
+         artist-tag (when metadata-tags
+                      (first (metadata-tags :artist)))
+         song-name (if (not (empty? title-tag)) title-tag file-name)
+         song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")
+         existing-song-for-sum (data/get-song-by-file-name generated-file-name)]
+     (if existing-song-for-sum
+       (throw+ {:type :upload-fail
+                :message (str "El archivo ya existe con nombre de tema : " (get existing-song-for-sum :name))
+                :filename file-name
+                :size size})
+       (do 
+         (utils/save-file-to-disk file-map generated-file-name upload-dir)
+         (let [created-song (data/save-song song-name
+                                            song-artist
+                                            file-name
+                                            generated-file-name username)] 
+           (json/write-str {:files [{:name file-name
+                                     :size size
+                                     :url (str "/music/" (get created-song :_id))}]})))))
+   (catch [:type :upload-fail] {:keys [message filename size]}       
+     (json/write-str {:files [{:name filename
+                               :size size
+                               :error message}]}))))
 
 
 

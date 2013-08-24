@@ -1,12 +1,14 @@
 (ns mambobox.data-access
   (:require [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.query :as mq]
             [clojure.tools.logging :as log]
             [cemerick.friend.credentials :as creds])
   (:use monger.operators
         [mambobox.utils :only [defnlog]])
   (:import [org.bson.types ObjectId]
-           [com.mongodb DB WriteConcern]))
+           [com.mongodb DB WriteConcern]
+           [java.util Date]))
 
 ;; localhost, default port
 (mg/connect!)
@@ -16,19 +18,27 @@
 ;; Songs
 
 (defn get-all-songs []
-  (mc/find-maps "songs"))
+  (mq/with-collection "songs"
+    (mq/find {})
+    (mq/sort (array-map :date-created -1))))
 
 (defn get-song-by-id [id]
   (mc/find-one-as-map "songs" {:_id (ObjectId. id)}))
 
+(defn get-song-by-file-name [file-name]
+  (mc/find-one-as-map "songs" {:generated-file-name file-name}))
+
+
+
 (defn save-song [name artist original-file-name generated-file-name username]
   (mc/insert-and-return "songs" {:_id (ObjectId.) 
-                      :name name 
-                      :artist artist
-                      :original-file-name original-file-name
-                      :uploader-username username
-                      :visits 0
-                      :generated-file-name generated-file-name}))
+                                 :name name 
+                                 :artist artist
+                                 :original-file-name original-file-name
+                                 :uploader-username username
+                                 :visits 0
+                                 :generated-file-name generated-file-name
+                                 :date-created (new Date)}))
 
 (defn track-song-access [song-id]
   (mc/update "songs" {:_id (ObjectId. song-id)} {$inc {:visits 1}}))
@@ -72,7 +82,10 @@
 ;; Notes
 
 (defn add-new [username newtext]
-  (mc/insert "news" {:_id (ObjectId.) :username username :text newtext}))
+  (mc/insert "news" {:_id (ObjectId.) :username username :text newtext :date-created (new Date)}))
 
 (defn get-all-news []
-  (mc/find-maps "news"))
+  (mq/with-collection "news"
+    (mq/find {})
+    (mq/fields [:username :text :date-created])
+    (mq/sort (array-map :date-created -1))))

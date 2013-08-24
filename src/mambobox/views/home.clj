@@ -2,23 +2,29 @@
   (:use hiccup.core
         hiccup.page)
   (:require [mambobox.data-access :as data]
-            [mambobox.views.general :as gen]))
+            [mambobox.views.general :as gen]
+            [mambobox.utils :as utils]))
 
 (defn render-news [news]
   [:div {:id "news-main-div" :class "container"}
    (for [new news]
      (let [username (get new :username)
-           text (get new :text)]
+           text (get new :text)
+           date-created (get new :date-created)]
        [:div {:class "row"} 
-        [:div {:class "new col-md-10 col-md-offset-1 col-xs-12"} 
-         [:div {:class "username"} username]
-         [:div {:class "text"} text]]]))
+        [:div {:class "new col-md-10 col-md-offset-1 col-xs-12"}
+         [:div {:class "container"}
+          [:div {:class "row"}
+           [:div {:class "username col-md-10 col-xs-7"} username]
+           [:div {:class "date-created"} (utils/format-date date-created)]]
+          [:div {:class "row"}
+           [:div {:class "text col-md-12"} text]]]]]))
    [:form {:method "POST" :action "/news/"}
     [:div {:class "container"}
      [:div {:class "row"}
-      [:textarea {:name "newtext" :class "col-md-8 col-md-offset-2 col-xs-12" :rows "5"}]]
+      [:textarea {:name "newtext" :class "col-md-10 col-md-offset-1 col-xs-12" :rows "5"}]]
      [:div {:class "row"}
-      [:button {:class "btn btn-primary col-md-2 col-md-offset-8 col-xs-2 col-xs-offset-8" :type "submit"} "Agregar"]]]]])
+      [:button {:class "btn btn-primary col-md-2 col-md-offset-9 col-xs-12" :type "submit"} "Agregar"]]]]])
 
       
 

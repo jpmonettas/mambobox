@@ -8,12 +8,12 @@
 (defn file-select []
   [:div {:class "container"}
    [:div {:class "row"}
-    [:div {:class "col-md-3 col-xs-3"}
+    [:div {:class "col-md-3 col-xs-6"}
      [:span {:class "btn btn-success fileinput-button"}
       [:i {:class "icon-plus icon-white"}]
       [:span "Seleccionar archivos"]
       [:input {:id "fileupload" :type "file" :name "files[]" :multiple ""}]]]
-    [:div {:class "col-md-9 col-xs-9"}
+    [:div {:class "col-md-9 col-xs-5 col-xs-offset-4"}
      [:div {:id "progress" :class "progress"}
       [:div {:class "progress-bar progress-bar-success"}]]]]
    [:div {:class "row"}
