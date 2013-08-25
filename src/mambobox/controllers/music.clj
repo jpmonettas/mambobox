@@ -7,11 +7,11 @@
         [slingshot.slingshot :only [throw+ try+]]
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
-            [mambobox.logger :as mambo-logger]
             [mambobox.data-access :as data]
             [clojure.tools.logging :as log]
             [fuzzy-string.core :as fuzz-str]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [mambobox.config]))
 
 
 (defn accept-song-for-query? [song qstring]
@@ -66,8 +66,6 @@
 (defn upload-page [username]
   (music-upload-view username))
 
-(def upload-dir "/home/jmonetta/temp/music/")
-
 (defn upload-file [username file]
   (try+
    (let [file-map (first file)
@@ -91,7 +89,7 @@
                 :filename file-name
                 :size size})
        (do 
-         (utils/save-file-to-disk file-map generated-file-name upload-dir)
+         (utils/save-file-to-disk file-map generated-file-name mambobox.config/music-dir)
          (let [created-song (data/save-song song-name
                                             song-artist
                                             file-name

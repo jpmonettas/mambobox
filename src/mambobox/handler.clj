@@ -12,7 +12,8 @@
             [mambobox.controllers.home :as hc]
             [mambobox.views.login :as lv]
             [mambobox.data-access :as data]
-            [mambobox.utils :as utils])
+            [mambobox.utils :as utils]
+            [mambobox.config])
   (:gen-class))
 
 
@@ -51,7 +52,7 @@
     (friend/logout* (resp/redirect (str (:context req) "/"))))
 
   ;; Music Files
-  (route/files "/files/" {:root "/home/jmonetta/temp/music"}) 
+  (route/files "/files/" {:root mambobox.config/music-dir}) 
 
   ;; Not Found
   (route/not-found "Not Found"))

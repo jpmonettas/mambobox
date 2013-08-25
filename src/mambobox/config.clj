@@ -1,8 +1,9 @@
-(ns mambobox.logger
+(ns mambobox.config
   (:use clj-logging-config.log4j
         [clojure.string :only [lower-case trim]])
   (:require [clojure.tools.logging :as log]))
 
+(def music-dir (System/getenv "MAMBOBOX_MUSIC_DIR"))
 
 (let [environment (trim (lower-case (System/getenv "MAMBOBOX_ENV")))]
   (cond (= environment "prod")
