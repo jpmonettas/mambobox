@@ -51,7 +51,6 @@
                          (log/debug "Cutting the list from " first-song " to " last-song)
                          (utils/sub-list tag-filtered-songs first-song last-song))]
     (log/debug "We have " cant-filtered-songs " songs after filtering.")
-    (log/debug "We are going to retrieve page " cur-page " of " num-pages) 
     (music-search-view username cur-page-songs q tag cur-page num-pages)))
 
 (defn music-id [username id]

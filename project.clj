@@ -15,12 +15,12 @@
                  [slingshot "0.10.3"]
                  [clj-time "0.6.0"]
                  [ring/ring-jetty-adapter "1.2.0"]
-                 [clj-logging-config "1.9.10"]]
+                 [clj-logging-config "1.9.10"]
+                 [org.clojure/tools.nrepl "0.2.3"]]
   :main mambobox.handler
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler mambobox.handler/app
-         :open-browser? false,
-         :nrepl {:start? true :port 7777}}
+         :open-browser? false}
   :profiles {:production 
              {:ring
               {:stacktraces? false,

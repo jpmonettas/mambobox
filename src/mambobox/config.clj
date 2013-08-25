@@ -15,7 +15,7 @@
                              "yyyy-MM-dd")})
         :else
         (set-loggers! "mambobox"
-                      {:level :debug
+                      {:level :info
                        :pattern "%d %p [%t] %c %m%n"}))
   (log/info "Setting logger for environment : [" environment "]"))
 

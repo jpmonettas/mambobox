@@ -1,6 +1,7 @@
 (ns mambobox.handler
   (:use [compojure.core]
-        [hiccup.core])
+        [hiccup.core]
+        [clojure.tools.nrepl.server :only (start-server stop-server)])
   (:require [cemerick.friend :as friend]
             (cemerick.friend [workflows :as workflows]
                              [credentials :as creds])
@@ -16,6 +17,7 @@
             [mambobox.config])
   (:gen-class))
 
+(defonce server (start-server :port 7777))
 
 (defn current-username [req]
   (let [current-ident (friend/current-authentication req)
