@@ -7,13 +7,13 @@
             [compojure.handler :as handler]
             [compojure.route :as route]
             [ring.util.response :as resp]
+            [ring.adapter.jetty :as jetty]
             [mambobox.controllers.music :as mc]
             [mambobox.controllers.home :as hc]
             [mambobox.views.login :as lv]
             [mambobox.data-access :as data]
-            [mambobox.utils :as utils]
-            [clojure.tools.logging :as log]))
-
+            [mambobox.utils :as utils])
+  (:gen-class))
 
 
 (defn current-username [req]
@@ -83,3 +83,9 @@
                           :workflows [(workflows/interactive-form)]}))
    {:multipart {:store @utils/my-default-store}}))
     
+(defn -main [& [port]]
+  (let [port (Integer. (or port
+                           (System/getenv "PORT")
+                           80))]
+     (jetty/run-jetty #'app {:port  port
+                            :join? false})))

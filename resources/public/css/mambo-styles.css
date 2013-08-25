@@ -65,6 +65,12 @@ ol#results-list li{
     margin-top: 15px;
 }
 
+ol#results-list li .song-name i{
+    margin-left:9px;
+    color: #1F629C;
+    font-size: 17px;
+}
+
 ol#results-list li a{
     text-decoration:none;
     font-size:13pt;

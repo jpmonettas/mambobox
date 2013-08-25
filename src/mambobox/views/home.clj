@@ -15,7 +15,7 @@
         [:div {:class "new col-md-10 col-md-offset-1 col-xs-12"}
          [:div {:class "container"}
           [:div {:class "row"}
-           [:div {:class "username col-md-10 col-xs-7"} username]
+           [:div {:class "username col-md-11 col-xs-9"} username]
            [:div {:class "date-created"} (utils/format-date date-created)]]
           [:div {:class "row"}
            [:div {:class "text col-md-12"} text]]]]]))

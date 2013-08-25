@@ -17,7 +17,7 @@
 (defn gen-uuid [file] (md5 file))
 
 (defn format-date [date]
-  (let [formatter (ctf/formatter "dd/MM/yyyy hh:mm")]
+  (let [formatter (ctf/formatter "dd/MM/yyyy")]
     (ctf/unparse formatter (from-date date))))
 
 (defn save-file-to-disk [file new-file-name dest-dir]

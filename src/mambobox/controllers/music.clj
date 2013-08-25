@@ -7,10 +7,12 @@
         [slingshot.slingshot :only [throw+ try+]]
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
+            [mambobox.logger :as mambo-logger]
             [mambobox.data-access :as data]
             [clojure.tools.logging :as log]
             [fuzzy-string.core :as fuzz-str]
             [clojure.data.json :as json]))
+
 
 (defn accept-song-for-query? [song qstring]
   (let [song-name (lower-case (get song :name))
