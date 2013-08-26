@@ -20,15 +20,21 @@
    [:ul {:class "pagination"}
     [:li (when (= cur-page 1) {:class "disabled"}) 
      [:span {:class "left-arrow"} "&laquo;"]]
-    (for [i (range 1 (+ num-pages 1))]
-      [:li (if (= cur-page i) {:class "active page-link"} {:class "page-link"})
-       [:span i]])
+    (let [first-page (if (<= cur-page 3)
+                      1
+                      (- cur-page 2))
+          last-page (if (<= (+ first-page 4) num-pages)
+                      (+ first-page 5)
+                      (+ num-pages 1))]
+      (for [i (range first-page last-page)]
+        [:li (if (= cur-page i) {:class "active page-link"} {:class "page-link"})
+         [:span i]]))
     [:li (when (= cur-page num-pages) {:class "disabled"}) 
      [:span {:class "right-arrow"} "&raquo;"]]]])
 
 
 (defn search-results [result-col cur-page num-pages]
-  [:div {:id "results-main-div" :class "col-md-10 col-xs-12"}
+  [:div {:id "results-main-div" :class "col-md-12 col-xs-12"}
    (gen/tag-filter-accordion "Filtrar por etiqueta" "search")
    [:ol {:id "results-list"}
     (for [result result-col

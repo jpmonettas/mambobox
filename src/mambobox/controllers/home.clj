@@ -9,6 +9,6 @@
     (home-page-view username news-to-show)))
 
 (defn add-new [username newtext]
-  (log/debug (str "Adding" username " " newtext))
+  (log/info username "added a new with text:" newtext)
   (data/add-new username newtext)
   (redirect "/"))

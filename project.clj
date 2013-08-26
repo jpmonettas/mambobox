@@ -29,5 +29,6 @@
              {:ring
               {:auto-reload? true
                :auto-refresh true
-               :stacktraces? true}
+               :stacktraces? false}
               :dependencies [[ring-mock "0.1.5"]]}})
+

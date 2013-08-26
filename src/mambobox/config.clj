@@ -11,7 +11,7 @@
                       {:level :debug
                        :out (org.apache.log4j.DailyRollingFileAppender.
                              (org.apache.log4j.EnhancedPatternLayout. "%d %p [%t] %c %m%n")
-                             "./mambobox.log"
+                             "/home/mambobox/logs/mambobox.log"
                              "yyyy-MM-dd")})
         :else
         (set-loggers! "mambobox"

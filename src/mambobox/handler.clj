@@ -19,12 +19,12 @@
 
 (defonce server (start-server :port 7777))
 
+
 (defn current-username [req]
   (let [current-ident (friend/current-authentication req)
         username (get current-ident :username)]
     username))
                                      
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;            Secured Routes            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -75,17 +75,19 @@
   (route/resources "/"))
 
     
-(def app 
-  (handler/site 
-   (routes
-    app-routes
-    (friend/authenticate app-auth-routes
-                         {:allow-anon? nil
-                          :login-uri "/login"
-                          :credential-fn (partial creds/bcrypt-credential-fn data/get-user-by-username)
-                          :workflows [(workflows/interactive-form)]}))
-   {:multipart {:store @utils/my-default-store}}))
-    
+(def app
+  (->
+   (handler/site 
+    (routes
+     app-routes
+     (friend/authenticate app-auth-routes
+                          {:allow-anon? nil
+                           :login-uri "/login"
+                           :credential-fn (partial creds/bcrypt-credential-fn data/get-user-by-username)
+                           :workflows [(workflows/interactive-form)]}))
+    {:multipart {:store @utils/my-default-store}})
+   (utils/wrap-my-exception-logger)))
+
 (defn -main [& [port]]
   (let [port (Integer. (or port
                            (System/getenv "PORT")

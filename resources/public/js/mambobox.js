@@ -180,14 +180,14 @@ $(function () {
             node
                 //.append('<br>')
                 //.append(file.error);
-                .append($('<div class="alert alert-danger"/>').text("Solo archivos mp3 soportados actualmente"));
+                .append($('<div class="alert alert-danger"/>').text("Solo archivos mp3 de 20MB soportados actualmente"));
         }
         if (index + 1 === data.files.length) {
             data.context.find('button')
                 .text('Upload')
                 .prop('disabled', !!data.files.error);
         }
-    }).on('fileuploadprogressall', function (e, data) {
+    }).on('fileuploadprogress', function (e, data) {
         var progress = parseInt(data.loaded / data.total * 100, 10);
         $('#progress .progress-bar').css(
             'width',

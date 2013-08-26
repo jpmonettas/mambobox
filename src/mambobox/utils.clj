@@ -7,12 +7,23 @@
         [clojure.java.io :as io]
         [digest]
         [clj-time.format :as ctf]
-        [clj-time.coerce :as ctc])
+        [clj-time.coerce :as ctc]
+        [clj-stacktrace.repl])
   (:import [java.io File]
            [java.util UUID]
            [java.lang Integer]
            [org.jaudiotagger.audio AudioFileIO]
            [org.jaudiotagger.tag FieldKey]))
+
+(defn wrap-my-exception-logger [handler]
+  (fn [request]
+    (try
+      (handler request)
+      (catch Exception ex
+        (let [msg (str "DAMN IT!!!: " (pst-str ex))]
+          (log/error msg)
+          (throw ex))))))
+
 
 (defn gen-uuid [file] (md5 file))
 

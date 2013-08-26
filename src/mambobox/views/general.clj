@@ -5,7 +5,9 @@
 (def ordered-tags-array
   [["chacha" "#d9534f"]
    ["mambo" "#9303a7"]
+   ["latin-jazz" "#993366"]
    ["guaracha" "#64a8d1"]
+   ["pachanga" "#999900"]
    ["son" "#ff7800"]
    ["montuno" "#ff9a40"]
    ["songo" "#ffa700"]
@@ -14,8 +16,7 @@
    ["guaguanco" "#389e28"]
    ["yambu" "#1dd300"]
    ["columbia" "#52e93a"]
-   ["afro" "#a64b00"]
-   ["pachanga" "#ffe400"]])
+   ["afro" "#a64b00"]])
 
 ;; Just for fast searching
 (def tags-color-map (into {} ordered-tags-array))
