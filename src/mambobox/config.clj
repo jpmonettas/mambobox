@@ -5,6 +5,8 @@
 
 (def music-dir (System/getenv "MAMBOBOX_MUSIC_DIR"))
 
+(def result-page-size 10)
+
 (let [environment (trim (lower-case (System/getenv "MAMBOBOX_ENV")))]
   (cond (= environment "prod")
         (set-loggers! "mambobox"

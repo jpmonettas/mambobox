@@ -31,7 +31,10 @@
 
 (defroutes app-auth-routes
   ;;Music Page
-  (GET "/music/" [q curpage tagfilter :as req] (mc/music-search (current-username req) q tagfilter curpage))
+  (GET "/music/" [q curpage tagfilter :as req] (mc/music-search (current-username req)
+                                                                q 
+                                                                tagfilter 
+                                                                curpage))
   (GET "/music/:id" [id :as req] (mc/music-id (current-username req) id))
   (POST "/music/:id" [id newsongname newartist :as req] (mc/edit-music (current-username req) id newsongname newartist))
   (POST "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/add-tag (current-username req) musicid tagname))

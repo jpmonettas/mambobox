@@ -11,7 +11,7 @@
             [clojure.tools.logging :as log]
             [fuzzy-string.core :as fuzz-str]
             [clojure.data.json :as json]
-            [mambobox.config]))
+            [mambobox.config :as config]))
 
 
 (defn accept-song-for-query? [song qstring]
@@ -24,12 +24,21 @@
   (let [tags (get song :tags)]
     (some #{tag} tags)))
 
+(defn get-cant-pages [col page-size]
+  (let [col-size (count col)]
+    (+ (quot col-size page-size) 
+       (if (> (mod col-size page-size) 0) 1 0))))
 
-(def page-size 10)
+(defn get-collection-page [col cur-page page-size]
+  (let [col-size (count col)
+        num-pages (get-cant-pages col page-size)
+        first-song (inc (* (dec cur-page) page-size))
+        last-song (dec (+ first-song page-size))]
+    (utils/sub-list col first-song last-song)))
+        
 
-(defn music-search [username q tag cur-page]
+(defn search-music [username q tag cur-page page-size all-songs]
   (let [processed-q (when q (lower-case q))
-        all-songs (data/get-all-songs)
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
                                          (accept-song-for-query? song processed-q))
@@ -40,17 +49,18 @@
                                        (song-contains-tag? song tag))
                                      query-filtered-songs)
                              query-filtered-songs)
-        cur-page (if cur-page
-                   (utils/parse-int cur-page)
-                   1)
-        cant-filtered-songs (count tag-filtered-songs)
-        num-pages (+ (quot cant-filtered-songs page-size) 
-                     (if (> (mod cant-filtered-songs page-size) 0) 1 0))
-        cur-page-songs (let [first-song (inc (* (dec cur-page) page-size))
-                             last-song (dec (+ first-song page-size))]
-                         (utils/sub-list tag-filtered-songs first-song last-song))]
-    (log/info username "searchig for [" q "] with tag [" tag "] retrieved" cant-filtered-songs "songs in" num-pages "pages")
-    (music-search-view username cur-page-songs q tag cur-page num-pages)))
+        num-pages (get-cant-pages tag-filtered-songs page-size)
+        cur-page-songs (get-collection-page tag-filtered-songs cur-page page-size)]
+    (log/info username "searchig for [" q "] with tag [" tag "] retrieved" (count tag-filtered-songs) "songs")
+    {:num-pages num-pages
+     :songs-found cur-page-songs}))
+
+(defn music-search [username q tag cur-page]
+  (let [cur-page (if cur-page (utils/parse-int cur-page) 1)
+        result (search-music username q tag cur-page config/result-page-size (data/get-all-songs))
+        songs-found (:songs-found result)
+        num-pages (:num-pages result)]
+        (music-search-view username songs-found q tag cur-page num-pages)))
 
 (defn music-id [username id]
   (let [song (data/get-song-by-id id)]

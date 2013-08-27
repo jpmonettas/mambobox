@@ -155,26 +155,6 @@
 ;;   (f2))
 
 
-
-
-;; (defmacro dlet [bindings & body-forms]
-;;   `(let 
-;;        ~(let [bind-pairs (partition 2 bindings)]
-;;           (into []
-;;                 (reduce 
-;;                  concat
-;;                  (map 
-;;                   (fn [[bind-name bind-form]]
-;;                     (if (and (seq? bind-form) (= (first bind-form) 'D*))
-;;                       [bind-name `(let [res# ~(second bind-form)]
-;;                                     (log/debug (quote ~bind-name)
-;;                                                ":"
-;;                                                (with-out-str (clojure.pprint/pprint res#)))
-;;                                     res#)]
-;;                       [bind-name bind-form]))
-;;                   bind-pairs))))
-;;      ~@body-forms))
-
 (defn symbol-starts-with-*? [sym]
   (= (get (name sym) 0) \*))
 
