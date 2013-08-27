@@ -51,7 +51,7 @@
                              query-filtered-songs)
         num-pages (get-cant-pages tag-filtered-songs page-size)
         cur-page-songs (get-collection-page tag-filtered-songs cur-page page-size)]
-    (log/info username "searchig for [" q "] with tag [" tag "] retrieved" (count tag-filtered-songs) "songs")
+    (log/info username "searchig for [" q "] with tag [" tag "] retrieved" (count tag-filtered-songs) "songs. Page:" cur-page)
     {:num-pages num-pages
      :songs-found cur-page-songs}))
 
@@ -62,15 +62,16 @@
         num-pages (:num-pages result)]
         (music-search-view username songs-found q tag cur-page num-pages)))
 
-(defn music-id [username id]
-  (let [song (data/get-song-by-id id)]
-    (data/track-song-access id)
-    (log/info username "seeing" (:name song) "[" id "]")
+(defn music-id [username user-id song-id]
+  (let [song (data/get-song-by-id song-id)]
+    (data/track-song-access song-id)
+    (data/add-song-to-visited user-id song-id)
+    (log/info username "seeing" (:name song) "[" song-id "]")
     (music-detail-view username song)))
 
 (defn edit-music [username id song-name artist] 
   (let [song (data/update-song id song-name artist)]
-    (log/info username "editing song [" id "] with new name : [" song-name "] and new artis : [" artist "]")
+    (log/info username "editing song [" id "] with new name : [" song-name "] and new artist : [" artist "]")
     (music-detail-view username song)))
 
 (defn upload-page [username]

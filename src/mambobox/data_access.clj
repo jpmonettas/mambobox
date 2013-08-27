@@ -15,6 +15,31 @@
 (mg/set-db! (mg/get-db "mambobox"))
 
 
+;; (with-auto-object-id [user-id]
+;;     (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}}))
+
+;; Macroexpands to ->
+
+;; (let [user-id (if (instance? java.lang.String user-id)
+;;                 (ObjectId. user-id)
+;;                 user-id)]
+;;   (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}}))
+
+(defmacro with-auto-object-id [ids & forms]
+  `(let 
+       ~(into []
+              (reduce 
+               concat
+               (map
+                (fn [bind-name]
+                  [bind-name `(if (instance? String ~bind-name)
+                                (ObjectId. ~bind-name)
+                                ~bind-name)])
+                ids)))
+     ~@forms))
+
+
+
 ;; Songs
 
 (defn get-all-songs []
@@ -66,6 +91,27 @@
 
 (defn del-song-external-video-link [song-id link]
   (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:external-video-links link}}))
+
+
+;; Users Favourites
+
+(defn add-song-to-favourites [user-id song-id]
+  (with-auto-object-id [user-id]
+    (mc/update "users" {:_id user-id} {$addToSet {:favourites song-id}})))
+
+(defn del-song-from-favourites [user-id song-id]
+  (with-auto-object-id [user-id]
+    (mc/update "users" {:_id (ObjectId. user-id)} {$pull {:favourites song-id}})))
+
+;;Users visited songs
+
+(defn add-song-to-visited [user-id song-id]
+  (with-auto-object-id [user-id]
+    (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}})))
+
+(defn del-song-from-visited [user-id song-id]
+  (with-auto-object-id [user-id]
+    (mc/update "users" {:_id (ObjectId. user-id)} {$pull {:visited song-id}})))
 
 
 ;; Users
