@@ -110,6 +110,11 @@ ul.pagination li{
     margin-bottom:10px;
 }
 
+.player{
+    margin: auto;
+    width: 241px;
+}
+
 #main-music-detail-div .artist{
     font-size: 14pt;
     margin-bottom:10px;

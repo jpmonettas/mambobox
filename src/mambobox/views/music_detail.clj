@@ -41,6 +41,52 @@
        [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
        [:button {:type "submit" :class "btn btn-primary" :id "edit-song-ok"} "Aceptar"]]]]]])
 
+;; (defn music-player [file-path]
+;;   [:div
+;;    [:input {:type "hidden" :id "song-file" :value (str "/files/" file-path)}]
+;;    [:div {:id "jquery_jplayer_1" :class "jp-jplayer"}]
+;;    [:div {:id "jp_container_1" :class "jp-audio"}
+;;     [:div {:class "jp-type-single"}
+;;      [:div {:class "jp-gui jp-interface"}
+;;       [:ul {:class "jp-controls"}
+;;        [:li [:a {:href "javascript:;" :class "jp-play" :tabindex "1"} "play"]]
+;;        [:li [:a {:href "javascript:;" :class "jp-pause" :tabindex "1"} "pause"]]
+;;        [:li [:a {:href "javascript:;" :class "jp-stop" :tabindex "1"} "stop"]]
+;;        [:li [:a {:href "javascript:;" :class "jp-mute" :tabindex "1" :title "mute"} "mute"]]
+;;        [:li [:a {:href "javascript:;" :class "jp-unmute" :tabindex "1" :title "unmute"} "unmute"]]]
+;;       [:div {:class "jp-progress"}
+;;        [:div {:class "jp-seek-bar"}
+;;         [:div {:class "jp-play-bar"}]]]
+;;       [:div {:class "jp-volume-bar"}
+;;         [:div {:class "jp-volume-bar-value"}]]
+;;             [:div {:class "jp-time-holder"}
+;;              [:div {:class "jp-current-time"}]
+;;              [:div {:class "jp-duration"}]
+;;              [:ul {:class "jp-toggles"}
+;;               [:li [:a {:href "javascrip:;" :class "jp-repeat" :tabindex "1" :title "repeat"} "repeat"]]
+;;               [:li [:a {:href "javascrip:;" :class "jp-repeat-off" :tabindex "1" :title "repeat off"} "repeat off"]]]]]
+;;      [:div {:class "jp-title"}
+;;       [:ul [:li "Bubble"]]]
+;;      [:div {:class "jp-no-solution"} "Navegador no soportado"]]]])
+
+(defn music-player-min [file-path]
+  [:div {:class "player"}
+   [:input {:type "hidden" :id "song-file" :value (str "/files/" file-path)}]
+   [:div {:id "jquery_jplayer_1" :class "jp-jplayer"}]
+   [:div {:id "jp_container_1" :class "jp-audio"}
+    [:div {:class "jp-type-single"}
+     [:div {:class "jp-gui jp-interface"}
+      [:ul {:class "jp-controls"}
+       [:li [:a {:href "javascript:;" :class "jp-play" :tabindex "1"} "play"]]
+       [:li [:a {:href "javascript:;" :class "jp-pause" :tabindex "1"} "pause"]]]
+      [:div {:class "jp-progress"}
+       [:div {:class "jp-seek-bar"}
+        [:div {:class "jp-play-bar"}]]]
+            [:div {:class "jp-time-holder"}
+             [:div {:class "jp-current-time"}]
+             [:div {:class "jp-duration"}]]]
+     [:div {:class "jp-no-solution"} "Navegador no soportado"]]]])
+
 
 
 (defn song-details [song]
@@ -72,23 +118,22 @@
           [:button {:class "btn btn-danger song-edit-button" :type "button"} [:i {:class "glyphicon glyphicon-pencil"} " "]]
           [:button {:class "btn btn-success" :type "submit" :style "display:none"} [:i {:class "glyphicon glyphicon-ok"} " "]]]]]
 
-        
-        [:input {:type "hidden" :id "song-id" :value song-id}]
        
-       [:div {:class "soft-message"} (str "Archivo original: " original-file-name)]
+       [:input {:type "hidden" :id "song-id" :value song-id}]
+       
        [:div {:class "soft-message"} (str "Subido por: " uploader-username)]
        
        [:div {:class "tags"}
         (for [tag tags]
           (gen/render-detail-tag-label tag))
         [:div {:class "tags-box"}
-        (gen/tag-filter-accordion "Agregar Tags" "detail")]
-        ;; [:a {:data-toggle "modal" :href "#select-tag-modal" :class "btn btn-primary btn-xs"} 
-        ;;  [:i {:class "glyphicon glyphicon-tags"} " "]]
-        
-        ]
-       [:audio {:controls ""}
-        [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]]]]))
+         (gen/tag-filter-accordion "Agregar Tags" "detail")]]
+       (music-player-min file-path)
+       ]]]))
+
+;; [:audio {:controls ""}
+;;         [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]
+
 
 (defn external-related-videos [song]
   (let [links (get song :external-video-links)

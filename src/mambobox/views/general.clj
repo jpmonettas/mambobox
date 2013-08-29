@@ -1,6 +1,7 @@
 (ns mambobox.views.general
   (:use hiccup.core
-        hiccup.def))
+        hiccup.def)
+  (:require [mambobox.utils :as utils]))
 
 (def ordered-tags-array
   [["chacha" "#d9534f"]
@@ -29,6 +30,7 @@
   (html
    [:link {:rel "stylesheet" :href "/css/jquery.fileupload-ui.css"}] 
    [:link {:rel "stylesheet" :href "/css/bootstrap.min.css"}]
+   [:link {:rel "stylesheet" :href "/skin/jplayer.blue.monday-mine.css"}]
    [:link {:rel "stylesheet" :href "/css/bootstrap-glyphicons.css"}]
    [:link {:rel "stylesheet" :href "/css/mambo-styles.css"}]))
 
@@ -42,7 +44,8 @@
    [:script {:src "/js/jquery.fileupload-process.js"}]
    [:script {:src "/js/jquery.fileupload-image.js"}]
    [:script {:src "/js/jquery.fileupload-audio.js"}]
-   [:script {:src "js/jquery.fileupload-validate.js"}]
+   [:script {:src "/js/jquery.fileupload-validate.js"}]
+   [:script {:src "/js/jquery.jplayer.min.js"}]
    [:script {:src "/js/bootstrap.min.js"}]
    [:script {:src "/js/mambobox.js"}]))
 
@@ -83,7 +86,7 @@
      [:span {:class "icon-bar"}]
      [:span {:class "icon-bar"}]
      [:span {:class "icon-bar"}]]
-    [:span {:class "navbar-brand"} username]]
+    [:span {:class "navbar-brand"} (utils/get-name-from-email username)]]
    [:div {:class "collapse navbar-collapse navbar-ex1-collapse"}
     [:ul {:class "nav navbar-nav"}
      [:li (when (= active-tab :home) {:class "active"})  

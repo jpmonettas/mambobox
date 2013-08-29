@@ -123,6 +123,16 @@ $(document).ready(function (){
         }
     });
 
+    $("#jquery_jplayer_1").jPlayer({
+        ready: function () {
+            $(this).jPlayer("setMedia", {
+                mp3: $("#song-file").val()
+            });
+        },
+        swfPath: "/swf",
+        supplied: "mp3"
+    });
+
 });
 
 // For the upload plugin

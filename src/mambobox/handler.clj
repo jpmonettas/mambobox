@@ -9,6 +9,7 @@
             [compojure.route :as route]
             [ring.util.response :as resp]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.file :as rmf]
             [mambobox.controllers.music :as mc]
             [mambobox.controllers.home :as hc]
             [mambobox.views.login :as lv]
@@ -65,9 +66,6 @@
   (GET "/logout" req
     (friend/logout* (resp/redirect (str (:context req) "/"))))
 
-  ;; Music Files
-  (route/files "/files/" {:root mambobox.config/music-dir}) 
-
   ;; Not Found
   (route/not-found "Not Found"))
 
@@ -77,6 +75,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defroutes app-routes
+
+  ;; Music Files
+  (route/files "/files/" {:root mambobox.config/music-dir}) 
  
   ;; Login Page
   (GET "/login" [] (lv/login))
@@ -98,6 +99,7 @@
                            :credential-fn (partial creds/bcrypt-credential-fn data/get-user-by-username)
                            :workflows [(workflows/interactive-form)]}))
     {:multipart {:store @utils/my-default-store}})
+   (utils/wrap-mp3-files-contentype)
    (utils/wrap-my-exception-logger)))
 
 (defn -main [& [port]]

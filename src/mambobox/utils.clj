@@ -2,6 +2,7 @@
   (:use [ring.middleware.params]
         [ring.middleware.multipart-params]
         [ring.adapter.jetty]
+        [ring.util.response]
         [compojure.core]
         [clojure.tools.logging :as log]
         [clojure.java.io :as io]
@@ -15,20 +16,16 @@
            [org.jaudiotagger.audio AudioFileIO]
            [org.jaudiotagger.tag FieldKey]))
 
-(defn wrap-my-exception-logger [handler]
-  (fn [request]
-    (try
-      (handler request)
-      (catch Exception ex
-        (let [msg (str "DAMN IT!!!: " (pst-str ex))]
-          (log/error msg)
-          (throw ex))))))
 
 
 (defn gen-uuid [file] (md5 file))
 
+(defn get-name-from-email [email]
+  (get (re-find #"(.*)@.*" email) 1))
+
+
 (defn format-date [date]
-  (let [formatter (ctf/formatter "dd/MM/yyyy")]
+  (let [formatter (ctf/formatter "dd/MM/yyyy hh:mm")]
     (ctf/unparse formatter (from-date date))))
 
 (defn save-file-to-disk [file new-file-name dest-dir]
@@ -45,6 +42,29 @@
 
 (defn parse-int [str]
   (Integer/parseInt str))
+
+
+(defn wrap-my-exception-logger [handler]
+  (fn [request]
+    (try
+      (handler request)
+      (catch Exception ex
+        (let [msg (str "DAMN IT!!!: " (pst-str ex))]
+          (log/error msg)
+          (throw ex))))))
+
+(defn wrap-mp3-files-contentype [handler]
+  (fn [request]
+    (if (str-contains (:uri request) "/files/")
+        (let [response (content-type (handler request) "audio/mpeg")]
+          response)
+    (handler request))))
+
+(defn wrap-debug [handler]
+  (fn [request]
+      (let [response (handler request)]
+        (log/info response)
+        response)))
 
 ;; (defnlog test [a b] 
 ;;   (+ a b))

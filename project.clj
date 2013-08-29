@@ -18,7 +18,7 @@
                  [clj-logging-config "1.9.10"]
                  [org.clojure/tools.nrepl "0.2.3"]]
   :main mambobox.handler
-  :plugins [[lein-ring "0.8.5"]]
+  :plugins [[lein-ring "0.8.6"]]
   :ring {:handler mambobox.handler/app
          :open-browser? false}
   :profiles {:production 

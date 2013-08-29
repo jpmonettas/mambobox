@@ -15,8 +15,8 @@
         [:div {:class "new col-md-10 col-md-offset-1 col-xs-12"}
          [:div {:class "container"}
           [:div {:class "row"}
-           [:div {:class "username col-md-11 col-xs-9"} username]
-           [:div {:class "date-created"} (utils/format-date date-created)]]
+           [:div {:class "username col-md-4 col-xs-12"} username]
+           [:div {:class "date-created col-md-2 col-md-offset-6 col-xs-12"} (utils/format-date date-created)]]
           [:div {:class "row"}
            [:div {:class "text col-md-12"} text]]]]]))
    [:form {:method "POST" :action "/news/"}
