@@ -32,12 +32,15 @@
                concat
                (map
                 (fn [bind-name]
-                  [bind-name `(if (instance? String ~bind-name)
-                                (ObjectId. ~bind-name)
-                                ~bind-name)])
+                  [bind-name `(if (vector? ~bind-name)
+                                (if (instance? String (first ~bind-name))
+                                  (map #(ObjectId. %) ~bind-name)
+                                  ~bind-name)
+                                (if (instance? String ~bind-name)
+                                  (ObjectId. ~bind-name)
+                                  ~bind-name))])
                 ids)))
      ~@forms))
-
 
 
 ;; Songs
@@ -46,6 +49,13 @@
   (mq/with-collection "songs"
     (mq/find {})
     (mq/sort (array-map :date-created -1))))
+
+(defn get-all-songs-from-ids [ids-vector]
+  (with-auto-object-id [ids-vector]
+    (mq/with-collection "songs"
+      (mq/find {:_id {$in ids-vector}})
+      (mq/sort (array-map :date-created -1)))))
+  
 
 (defn get-song-by-id [id]
   (mc/find-one-as-map "songs" {:_id (ObjectId. id)}))
@@ -95,7 +105,7 @@
 
 ;; Users Favourites
 
-(defn add-song-to-favourites [user-id song-id]
+(defn add-song-to-favourites [song-id user-id]
   (with-auto-object-id [user-id]
     (mc/update "users" {:_id user-id} {$addToSet {:favourites song-id}})))
 
@@ -121,6 +131,10 @@
   
 (defn get-user-by-username [username]
   (mc/find-one-as-map "users" {:username username}))
+
+(defn get-user-by-id [user-id]
+  (with-auto-object-id [user-id]
+    (mc/find-one-as-map "users" {:_id user-id})))
 
 (defn get-all-users []
   (mc/find-maps "users"))

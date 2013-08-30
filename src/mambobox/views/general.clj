@@ -95,7 +95,7 @@
            [:a {:href "#" :class "dropdown-toggle" :data-toggle "dropdown"} "Musica" [:b {:class "caret"}]]
            [:ul {:class "dropdown-menu"}
             [:li 
-             [:a {:href "/music/"} "Buscar"]]
+             [:a {:href "/music/"} "Buscar"]]        
             [:li 
              [:a {:href "/upload"} "Subir"]]]]]
     [:ul {:class "nav navbar-nav navbar-right"}

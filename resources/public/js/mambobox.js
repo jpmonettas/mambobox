@@ -65,6 +65,34 @@ $(function (){
     });
 });
 
+/* For adding a song to favourites */
+$(function (){
+   $("#add-to-favourites").click(function(){
+       var songId=$("#song-id").val();
+       var postUrl="/current-user/favourites/" + songId;
+       var addButton=$(this);
+       if(songId){
+           $.ajax({
+                type:"POST",
+               url: postUrl,
+               success:function(){
+                   addButton.remove();
+               }
+           });
+       }
+       
+   });
+});
+
+/* For changing the search base collection */
+$(function (){
+   $("input[name='collection-filter']").change(function(){
+      $("#search-form").submit();
+   });
+});
+
+
+
 /* For removing a video link */
 $(function (){
    $(".delete-video-button").click(function(){
@@ -137,7 +165,7 @@ $(document).ready(function (){
 
 // For the upload plugin
 $(function () {
-    'use strict';
+    'use strict'; 
     // Change this to the location of your server-side upload handler:
     var url = "/upload";
     var uploadButton = $('<button/>')
@@ -149,7 +177,7 @@ $(function () {
                 data = $this.data();
             $this
                 .off('click')
-                .text('Abort')
+                .text('Abortar')
                 .on('click', function () {
                     $this.remove();
                     data.abort();
@@ -194,7 +222,7 @@ $(function () {
         }
         if (index + 1 === data.files.length) {
             data.context.find('button')
-                .text('Upload')
+                .text('Subir')
                 .prop('disabled', !!data.files.error);
         }
     }).on('fileuploadprogress', function (e, data) {

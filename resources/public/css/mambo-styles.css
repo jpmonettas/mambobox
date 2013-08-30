@@ -96,6 +96,10 @@ ul.pagination li{
     background: grey;
 }
 
+#add-to-favourites{
+    margin-top:15px;
+}
+
 #main-music-detail-div{
     text-align:center;
 }
@@ -111,7 +115,9 @@ ul.pagination li{
 }
 
 .player{
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 15px;
     width: 241px;
 }
 
@@ -154,6 +160,7 @@ ul.pagination li{
 .label.music-tag{
     margin-right:5px;
     padding:7px;
+    cursor:pointer;
 }
 
 .detail-tag{

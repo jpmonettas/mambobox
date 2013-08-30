@@ -89,13 +89,12 @@
 
 
 
-(defn song-details [song]
+(defn song-details [song song-is-favourite]
   (let [song-id (get song :_id)
         song-name (get song :name)
         artist (get song :artist)
         uploader-username (get song :uploader-username)
         tags (get song :tags)
-        original-file-name (get song :original-file-name)
         file-path (get song :generated-file-name)]
     [:div {:id "main-music-detail-div" :class "col-md-5 col-md-offset-3"}
      [:div {:class "sub-box"}
@@ -117,19 +116,17 @@
          [:span {:class "input-group-btn"}
           [:button {:class "btn btn-danger song-edit-button" :type "button"} [:i {:class "glyphicon glyphicon-pencil"} " "]]
           [:button {:class "btn btn-success" :type "submit" :style "display:none"} [:i {:class "glyphicon glyphicon-ok"} " "]]]]]
-
-       
        [:input {:type "hidden" :id "song-id" :value song-id}]
-       
        [:div {:class "soft-message"} (str "Subido por: " uploader-username)]
-       
        [:div {:class "tags"}
         (for [tag tags]
-          (gen/render-detail-tag-label tag))
+          (gen/render-detail-tag-label tag))]
         [:div {:class "tags-box"}
-         (gen/tag-filter-accordion "Agregar Tags" "detail")]]
-       (music-player-min file-path)
-       ]]]))
+         (gen/tag-filter-accordion "Agregar Tags" "detail")]
+       (when-not song-is-favourite
+         [:div
+          [:button {:class "btn btn-default" :id "add-to-favourites"} [:i {:class "glyphicon glyphicon-star"}] "Favorito"]])
+       (music-player-min file-path)]]]))
 
 ;; [:audio {:controls ""}
 ;;         [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]
@@ -156,7 +153,7 @@
        ]]]))
     
 
-(defn music-detail-view [username song]
+(defn music-detail-view [username song song-is-favourite]
   (html5
     gen/head
     [:body
@@ -166,7 +163,7 @@
       [:div {:class "row"}
        (gen/navbar :music username)]
       [:div {:class "row"}
-       (song-details song)
+       (song-details song song-is-favourite)
        ]
       [:div {:class "row"}
        (external-related-videos song)

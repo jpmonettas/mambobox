@@ -38,7 +38,7 @@
         
 
 (defn search-music [username q tag cur-page page-size all-songs]
-  (let [processed-q (when q (lower-case q))
+  (dlet [processed-q (when q (lower-case q))
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
                                          (accept-song-for-query? song processed-q))
@@ -55,24 +55,38 @@
     {:num-pages num-pages
      :songs-found cur-page-songs}))
 
-(defn music-search [username q tag cur-page]
-  (let [cur-page (if cur-page (utils/parse-int cur-page) 1)
-        result (search-music username q tag cur-page config/result-page-size (data/get-all-songs))
-        songs-found (:songs-found result)
-        num-pages (:num-pages result)]
-        (music-search-view username songs-found q tag cur-page num-pages)))
+(defn music-search [user-id q tag collection-filter cur-page]
+  (let [user (data/get-user-by-id user-id)
+        username (:username user)
+        user-favourite-song-ids (:favourites user)
+        collection-filter (if collection-filter collection-filter "all")
+        cur-page (if cur-page (utils/parse-int cur-page) 1)
+        base-collection (cond (= collection-filter "all") (data/get-all-songs)
+                              (= collection-filter "favourites") (data/get-all-songs-from-ids user-favourite-song-ids))
+        search-result (search-music username q tag cur-page config/result-page-size base-collection)
+        songs-found (:songs-found search-result)
+        num-pages (:num-pages search-result)]
+        (music-search-view username songs-found q tag collection-filter cur-page num-pages)))
 
-(defn music-id [username user-id song-id]
-  (let [song (data/get-song-by-id song-id)]
+(defn is-song-user-favourite? [song-id user]
+  (let [favourites (:favourites user)]
+        (some #{(.toString song-id)} favourites)))
+
+(defn music-id [user-id song-id]
+  (let [song (data/get-song-by-id song-id)
+        user (data/get-user-by-id user-id)
+        username (:username user)]
     (data/track-song-access song-id)
     (data/add-song-to-visited user-id song-id)
     (log/info username "seeing" (:name song) "[" song-id "]")
-    (music-detail-view username song)))
+    (music-detail-view username song (is-song-user-favourite? song-id user))))
 
-(defn edit-music [username id song-name artist] 
-  (let [song (data/update-song id song-name artist)]
-    (log/info username "editing song [" id "] with new name : [" song-name "] and new artist : [" artist "]")
-    (music-detail-view username song)))
+(defn edit-music [user-id song-id song-name artist] 
+  (let [user (data/get-user-by-id user-id)
+        username (:username user)
+        song (data/update-song song-id song-name artist)]
+    (log/info username "editing song [" song-id "] with new name : [" song-name "] and new artist : [" artist "]")
+    (music-detail-view username song (is-song-user-favourite? song-id user))))
 
 (defn upload-page [username]
   (music-upload-view username))

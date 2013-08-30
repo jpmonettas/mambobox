@@ -11,6 +11,7 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.file :as rmf]
             [mambobox.controllers.music :as mc]
+            [mambobox.controllers.users :as uc]
             [mambobox.controllers.home :as hc]
             [mambobox.views.login :as lv]
             [mambobox.data-access :as data]
@@ -37,14 +38,20 @@
 
 (defroutes app-auth-routes
   ;;Music Page
-  (GET "/music/" [q curpage tagfilter :as req] (mc/music-search (current-username req)
+  (GET "/music/" [q curpage tagfilter collection-filter :as req] (mc/music-search (current-user-id req)
                                                                 q 
                                                                 tagfilter 
+                                                                collection-filter
                                                                 curpage))
-  (GET "/music/:id" [id :as req] (mc/music-id (current-username req)
-                                              (current-user-id req)
+
+  (GET "/music/:id" [id :as req] (mc/music-id (current-user-id req)
                                               id))
-  (POST "/music/:id" [id newsongname newartist :as req] (mc/edit-music (current-username req) id newsongname newartist))
+
+  (POST "/music/:id" [id newsongname newartist :as req] (mc/edit-music (current-user-id req)
+                                                                       id 
+                                                                       newsongname 
+                                                                       newartist))
+
   (POST "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/add-tag (current-username req) musicid tagname))
   (DELETE "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/delete-tag (current-username req) musicid tagname))
 
@@ -54,7 +61,9 @@
   (GET "/upload" [:as req] (mc/upload-page (current-username req)))
   (POST "/upload" [files :as req] (mc/upload-file (current-username req) files))
 
-  (POST "/users/favourites/:musicid" [musicid :as req] (data/add-song-to-favourites musicid (current-user-id req)))
+  (POST "/current-user/favourites/:musicid" [musicid :as req] (uc/add-song-to-favourites musicid
+                                                                                  (current-user-id req)
+                                                                                  (current-username req)))
 
   ;; Home Page
   (GET "/" [:as req] (hc/home (current-username req)))
