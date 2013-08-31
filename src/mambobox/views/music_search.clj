@@ -15,7 +15,7 @@
        [:input {:type "hidden" :name "tagfilter" :value tag :id "tag-filter"}]
        [:span {:class "input-group-btn"}
         [:button {:class "btn btn-primary" :type "submit"} "Ir!"]]]]
-     [:div {:class "col-md-2 col-xs-12" :id "collection-filter-div"}
+     [:div {:class "col-md-3 col-xs-12" :id "collection-filter-div"}
       [:div {:class "btn-group" :data-toggle "buttons"}
        [:label {:class (str "btn btn-primary " (when (= collection-filter "all") "active"))}
         [:input (merge {:type "radio" :name "collection-filter" :value "all"}
