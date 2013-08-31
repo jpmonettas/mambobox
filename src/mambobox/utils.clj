@@ -191,7 +191,7 @@
                   (fn [[bind-name bind-form]]
                     (if (symbol-starts-with-*? bind-name) 
                       [(remove-mark-from-symbol bind-name) `(let [res# ~bind-form]
-                                                              (log/info (quote ~bind-name)
+                                                              (log/debug (quote ~bind-name)
                                                                          ":"
                                                                          (with-out-str (clojure.pprint/pprint res#)))
                                                               res#)]

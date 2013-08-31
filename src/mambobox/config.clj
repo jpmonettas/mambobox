@@ -10,7 +10,7 @@
 (let [environment (trim (lower-case (System/getenv "MAMBOBOX_ENV")))]
   (cond (= environment "prod")
         (set-loggers! "mambobox"
-                      {:level :info
+                      {:level :debug
                        :out (org.apache.log4j.DailyRollingFileAppender.
                              (org.apache.log4j.EnhancedPatternLayout. "%d %p [%t] %c %m%n")
                              "/home/mambobox/logs/mambobox.log"

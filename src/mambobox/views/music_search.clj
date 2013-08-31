@@ -46,30 +46,33 @@
 
 
 (defn search-results [result-col cur-page num-pages favs]
-  [:div {:id "results-main-div" :class "col-md-12 col-xs-12"}
-   (gen/tag-filter-accordion "Filtrar por etiqueta" "search")
-   [:ol {:id "results-list"}
-    (for [result result-col
-          :let [song-id (get result :_id)
-                song-name (get result :name)
-                artist (get result :artist)
-                tags (get result :tags)
-                video-links (get result :external-video-links)]]
-      [:li {:class "result"}
-       [:div {:class "container"}
-        [:div {:class "row"}
-         [:div {:class "song-name col-md-12 col-xs-12"} 
-          [:a {:href (str "/music/" song-id)} [:span song-name]] (when-not (empty? video-links) [:i {:class "glyphicon glyphicon-facetime-video"}])]]
-        [:div {:class "row"}
-         [:div {:class "artist"} artist]]
-        [:div {:class "row"}        
-         [:div {:class "tags col-xs-9"}
-          (for [tag tags]
-            (gen/render-tag-label tag "search"))]
-         [:input {:type "hidden" :name "song-id" :value song-id}]
-         (when favs [:button {:class "btn btn-warning col-md-1 col-md-offset-2 remove-fav-btn"} "Quitar"])]]])
-    ]
-   (pagination num-pages cur-page)])
+  (if-not (empty? result-col)
+    [:div {:id "results-main-div" :class "col-md-12 col-xs-12"}
+     (gen/tag-filter-accordion "Filtrar por etiqueta" "search")
+     [:ol {:id "results-list"}
+      (for [result result-col
+            :let [song-id (get result :_id)
+                  song-name (get result :name)
+                  artist (get result :artist)
+                  tags (get result :tags)
+                  video-links (get result :external-video-links)]]
+        [:li {:class "result"}
+         [:div {:class "container"}
+          [:div {:class "row"}
+           [:div {:class "song-name col-md-12 col-xs-12"} 
+            [:a {:href (str "/music/" song-id)} [:span song-name]] (when-not (empty? video-links) [:i {:class "glyphicon glyphicon-facetime-video"}])]]
+          [:div {:class "row"}
+           [:div {:class "artist"} artist]]
+          [:div {:class "row"}        
+           [:div {:class "tags col-xs-9"}
+            (for [tag tags]
+              (gen/render-tag-label tag "search"))]
+           [:input {:type "hidden" :name "song-id" :value song-id}]
+           (when favs [:button {:class "btn btn-warning col-md-1 col-md-offset-2 remove-fav-btn"} "Quitar"])]]])
+      ]
+     (pagination num-pages cur-page)]
+    [:div {:id "results-main-div" :class "col-md-12 col-xs-12"}
+     "No se encontrarons resultados para su busqueda"]))
 
 
 (defn music-search-view [username result-col q tag collection-filter cur-page num-pages favs]

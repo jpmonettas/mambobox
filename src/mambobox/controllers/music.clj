@@ -56,13 +56,14 @@
      :songs-found cur-page-songs}))
 
 (defn music-search [user-id q tag collection-filter cur-page]
-  (dlet [user (data/get-user-by-id user-id)
+  (let [user (data/get-user-by-id user-id)
         username (:username user)
         user-favourite-song-ids (:favourites user)
         collection-filter (if collection-filter collection-filter "all")
-        *cur-page (if cur-page (utils/parse-int cur-page) 1)
+        cur-page (if cur-page (utils/parse-int cur-page) 1)
         base-collection (cond (= collection-filter "all") (data/get-all-songs)
-                              (= collection-filter "favourites") (data/get-all-songs-from-ids user-favourite-song-ids))
+                              (= collection-filter "favourites") (when-not (empty? user-favourite-song-ids)
+                                                                   (data/get-all-songs-from-ids user-favourite-song-ids)))
         search-result (search-music username q tag cur-page config/result-page-size base-collection)
         songs-found (:songs-found search-result)
         num-pages (:num-pages search-result)]
