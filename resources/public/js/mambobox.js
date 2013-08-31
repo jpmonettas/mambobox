@@ -48,21 +48,50 @@ $(function (){
     });
 });
 
-/* For removing a tag */
+/* For adding a tag */
 $(function (){
-   $(".detail-tag li").click(function(){
-       var tagElement=$(this);
+    $("#main-music-detail-div .tags-box .label-wrapper-div").click(function(){
+        var songId=$("#song-id").val();
+        var tagHtml=$(this).html();
+        var tagName=$(tagHtml).text();
+        var tagColor=$(tagHtml).css("background-color");
+        var postUrl="/music/" + songId + "/tags/" + tagName;
+        if(tagName){
+            $.ajax({
+                type:"POST",
+                url: postUrl,
+                success:function(){
+                    var outterDiv=$('<div class="btn-group detail-tag">');
+                    var tagSpan=$('<span class="label music-tag dropdown-toggle" data-toggle="dropdown">')
+                        .css("background-color",tagColor)
+                        .text(tagName);
+                    var tagMenu=$('<ul class="dropdown-menu"><li>Quitar</li></ul>');
+                    outterDiv.append(tagSpan);
+                    outterDiv.append(tagMenu);
+                    $("#main-music-detail-div .tags").append(outterDiv);
+                    $(".detail-tag li").click(removeTagFromSong);
+                }
+            });
+        }
+    });
+});
+
+/* For removing a tag */
+var removeTagFromSong=function(){
+       var tagElement=$(this).parents(".detail-tag");
        var tagName=$($(this).parent().siblings("span")[0]).text();
        var songId=$("#song-id").val();
        var deleteUrl='/music/' + songId + '/tags/' + tagName;
        $.ajax({
                 type:"DELETE",
                 url: deleteUrl,
-                success:function(){
-                   tagElement.remove(); 
-                }
+            }).success(function(){
+                tagElement.remove(); 
             });
-    });
+}
+
+$(function (){
+   $(".detail-tag li").click(removeTagFromSong);
 });
 
 /* For adding a song to favourites */
@@ -91,21 +120,33 @@ $(function (){
    });
 });
 
-
+/* For removing a favourite*/
+$(function (){
+   $(".remove-fav-btn").click(function(){
+       var resultLi=$(this).parents("li.result");
+       var songId=$(this).siblings("input[name=song-id]").val();
+       var deleteUrl='/current-user/favourites/' + songId;
+       $.ajax({
+                type:"DELETE",
+                url: deleteUrl,
+            }).success(function(){
+                resultLi.remove();
+            });
+    });
+});
 
 /* For removing a video link */
 $(function (){
    $(".delete-video-button").click(function(){
-       var videoWraperDiv=$(this).parent(".video-wrapper");
+       var videoWraperDiv=$(this).parents(".video-wrapper");
        var link=videoWraperDiv.find("input").val();
        var songId=$("#song-id").val();
        var deleteUrl='/music/' + songId + '/links/' + encodeURIComponent(link);
        $.ajax({
                 type:"DELETE",
                 url: deleteUrl,
-                success:function(){
-                   videoWraperDiv.remove(); 
-                }
+            }).success(function(){
+                videoWraperDiv.remove(); 
             });
     });
 });
@@ -135,22 +176,6 @@ function insertParamSearch(search, key, value)
  
 
 $(document).ready(function (){
-    $("#main-music-detail-div .tags-box .label-wrapper-div").click(function(){
-        var songId=$("#song-id").val();
-        var tagHtml=$(this).html();
-        var tagName=$(tagHtml).text();
-        var postUrl="/music/" + songId + "/tags/" + tagName;
-        if(tagName){
-            $.ajax({
-                type:"POST",
-                url: postUrl,
-                success:function(){
-                    $("#main-music-detail-div .tags").prepend(tagHtml);
-                }
-            });
-        }
-    });
-
     $("#jquery_jplayer_1").jPlayer({
         ready: function () {
             $(this).jPlayer("setMedia", {

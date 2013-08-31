@@ -9,13 +9,13 @@
   [:div {:class "search-section container"}
    [:div {:class "row"}
     [:form {:method "GET" :action "/music/" :id "search-form"}
-     [:div {:class "col-md-6 col-md-offset-2 col-xs-12"}
+     [:div {:class "col-md-6 col-md-offset-2 col-xs-12"  :id "search-input-div"}
       [:div {:class "input-group"}
        [:input {:type "text" :name "q" :value q :class "form-control" :placeholder "tema, artista, etc"}]
        [:input {:type "hidden" :name "tagfilter" :value tag :id "tag-filter"}]
        [:span {:class "input-group-btn"}
         [:button {:class "btn btn-primary" :type "submit"} "Ir!"]]]]
-     [:div {:class "col-md-2 col-xs-9 col-xs-offset-1"}
+     [:div {:class "col-md-2 col-xs-12" :id "collection-filter-div"}
       [:div {:class "btn-group" :data-toggle "buttons"}
        [:label {:class (str "btn btn-primary " (when (= collection-filter "all") "active"))}
         [:input (merge {:type "radio" :name "collection-filter" :value "all"}
@@ -45,7 +45,7 @@
      [:span {:class "right-arrow"} "&raquo;"]]]])
 
 
-(defn search-results [result-col cur-page num-pages]
+(defn search-results [result-col cur-page num-pages favs]
   [:div {:id "results-main-div" :class "col-md-12 col-xs-12"}
    (gen/tag-filter-accordion "Filtrar por etiqueta" "search")
    [:ol {:id "results-list"}
@@ -56,18 +56,23 @@
                 tags (get result :tags)
                 video-links (get result :external-video-links)]]
       [:li {:class "result"}
-       [:div
-        [:div {:class "song-name"} [:a {:href (str "/music/" song-id)} song-name] (when video-links [:i {:class "glyphicon glyphicon-facetime-video"}])]
-        [:div {:class "artist"} artist]
-        [:div {:class "tags"}
-         (for [tag tags]
-           (gen/render-tag-label tag "search"))
-         ]]])
+       [:div {:class "container"}
+        [:div {:class "row"}
+         [:div {:class "song-name col-md-12 col-xs-12"} 
+          [:a {:href (str "/music/" song-id)} [:span song-name]] (when-not (empty? video-links) [:i {:class "glyphicon glyphicon-facetime-video"}])]]
+        [:div {:class "row"}
+         [:div {:class "artist"} artist]]
+        [:div {:class "row"}        
+         [:div {:class "tags col-xs-9"}
+          (for [tag tags]
+            (gen/render-tag-label tag "search"))]
+         [:input {:type "hidden" :name "song-id" :value song-id}]
+         (when favs [:button {:class "btn btn-warning col-md-1 col-md-offset-2 remove-fav-btn"} "Quitar"])]]])
     ]
    (pagination num-pages cur-page)])
 
 
-(defn music-search-view [username result-col q tag collection-filter cur-page num-pages]
+(defn music-search-view [username result-col q tag collection-filter cur-page num-pages favs]
     (html5
       gen/head
       [:body
@@ -88,6 +93,6 @@
            [:div {:class "col-md-1 tag-search"}
             (when (not (empty? tag)) (gen/render-tag-label tag "remove" "glyphicon-remove"))]])
         [:div {:class "row"}
-         (search-results result-col cur-page num-pages)]]
+         (search-results result-col cur-page num-pages favs)]]
        (gen/footer-includes)]))
      

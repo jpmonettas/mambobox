@@ -56,17 +56,24 @@
      :songs-found cur-page-songs}))
 
 (defn music-search [user-id q tag collection-filter cur-page]
-  (let [user (data/get-user-by-id user-id)
+  (dlet [user (data/get-user-by-id user-id)
         username (:username user)
         user-favourite-song-ids (:favourites user)
         collection-filter (if collection-filter collection-filter "all")
-        cur-page (if cur-page (utils/parse-int cur-page) 1)
+        *cur-page (if cur-page (utils/parse-int cur-page) 1)
         base-collection (cond (= collection-filter "all") (data/get-all-songs)
                               (= collection-filter "favourites") (data/get-all-songs-from-ids user-favourite-song-ids))
         search-result (search-music username q tag cur-page config/result-page-size base-collection)
         songs-found (:songs-found search-result)
         num-pages (:num-pages search-result)]
-        (music-search-view username songs-found q tag collection-filter cur-page num-pages)))
+        (music-search-view username
+                           songs-found
+                           q
+                           tag
+                           collection-filter
+                           cur-page
+                           num-pages
+                           (= collection-filter "favourites"))))
 
 (defn is-song-user-favourite? [song-id user]
   (let [favourites (:favourites user)]
@@ -137,12 +144,12 @@
 (defn add-tag [username song-id tag-name]
   (data/add-song-tag song-id tag-name)
   (log/info username "has tagged" song-id "with" tag-name)
-  {:status 200})
+  {:status 204})
 
 (defn delete-tag [username song-id tag-name]
   (data/del-song-tag song-id tag-name)
   (log/info username "has deleted from" song-id "tag" tag-name)
-  {:status 200})
+  {:status 204})
 
 (defn is-youtube-mobile-link? [link]
    (re-matches #".*youtu.be/[a-zA-Z0-9\-_]+" link))
@@ -172,4 +179,5 @@
 
 (defn del-related-link [username song-id link]
   (data/del-song-external-video-link song-id link)
-  (log/info username "has deleted" link "from the song" song-id))
+  (log/info username "has deleted" link "from the song" song-id)
+  {:status 204})

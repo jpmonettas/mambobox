@@ -39,10 +39,10 @@
 (defroutes app-auth-routes
   ;;Music Page
   (GET "/music/" [q curpage tagfilter collection-filter :as req] (mc/music-search (current-user-id req)
-                                                                q 
-                                                                tagfilter 
-                                                                collection-filter
-                                                                curpage))
+                                                                                  q 
+                                                                                  tagfilter 
+                                                                                  collection-filter
+                                                                                  curpage))
 
   (GET "/music/:id" [id :as req] (mc/music-id (current-user-id req)
                                               id))
@@ -52,24 +52,40 @@
                                                                        newsongname 
                                                                        newartist))
 
-  (POST "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/add-tag (current-username req) musicid tagname))
-  (DELETE "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/delete-tag (current-username req) musicid tagname))
+  (POST "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/add-tag (current-username req)
+                                                                              musicid
+                                                                              tagname))
 
-  (POST "/music/:musicid/links/" [musicid newlink :as req] (mc/add-related-link (current-username req) musicid newlink))
-  (DELETE "/music/:musicid/links/:link" [musicid link :as req] (mc/del-related-link (current-username req) musicid link))
+  (DELETE "/music/:musicid/tags/:tagname" [musicid tagname :as req] (mc/delete-tag (current-username req)
+                                                                                   musicid
+                                                                                   tagname))
+
+  (POST "/music/:musicid/links/" [musicid newlink :as req] (mc/add-related-link (current-username req)
+                                                                                musicid
+                                                                                newlink))
+
+  (DELETE "/music/:musicid/links/:link" [musicid link :as req] (mc/del-related-link (current-username req)
+                                                                                    musicid 
+                                                                                    link))
 
   (GET "/upload" [:as req] (mc/upload-page (current-username req)))
-  (POST "/upload" [files :as req] (mc/upload-file (current-username req) files))
+
+  (POST "/upload" [files :as req] (mc/upload-file (current-username req)
+                                                  files))
 
   (POST "/current-user/favourites/:musicid" [musicid :as req] (uc/add-song-to-favourites musicid
                                                                                   (current-user-id req)
                                                                                   (current-username req)))
 
+  (DELETE "/current-user/favourites/:musicid" [musicid :as req] (uc/del-song-from-favourites musicid
+                                                                                             (current-user-id req)))
+
   ;; Home Page
   (GET "/" [:as req] (hc/home (current-username req)))
 
   ;; News
-  (POST "/news/" [newtext :as req] (hc/add-new (current-username req) newtext)) 
+  (POST "/news/" [newtext :as req] (hc/add-new (current-username req) 
+                                               newtext)) 
 
   ;; Logout
   (GET "/logout" req

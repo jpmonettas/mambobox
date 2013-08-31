@@ -57,8 +57,9 @@
       (mq/sort (array-map :date-created -1)))))
   
 
-(defn get-song-by-id [id]
-  (mc/find-one-as-map "songs" {:_id (ObjectId. id)}))
+(defn get-song-by-id [song-id]
+  (with-auto-object-id [song-id]
+    (mc/find-one-as-map "songs" {:_id song-id})))
 
 (defn get-song-by-file-name [file-name]
   (mc/find-one-as-map "songs" {:generated-file-name file-name}))
@@ -76,31 +77,37 @@
                                  :date-created (new Date)}))
 
 (defn track-song-access [song-id]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$inc {:visits 1}}))
+  (with-auto-object-id [song-id]
+    (mc/update "songs" {:_id song-id} {$inc {:visits 1}})))
 
 ;; Song Tags
 
 (defn add-song-tag [song-id tagname]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$addToSet {:tags tagname}}))
+  (with-auto-object-id [song-id]
+    (mc/update "songs" {:_id song-id} {$addToSet {:tags tagname}})))
       
 (defn del-song-tag [song-id tagname]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:tags tagname}}))
+  (with-auto-object-id [song-id]
+    (mc/update "songs" {:_id song-id} {$pull {:tags tagname}})))
 
 (defn update-song [song-id song-name artist]
+  (with-auto-object-id [song-id]
   (when (not (empty? song-name))
-    (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:name song-name}}))
+    (mc/update "songs" {:_id song-id} {$set {:name song-name}}))
   (when (not (empty? artist))
-    (mc/update "songs" {:_id (ObjectId. song-id)} {$set {:artist artist}}))
-  (get-song-by-id song-id))
+    (mc/update "songs" {:_id song-id} {$set {:artist artist}}))
+  (get-song-by-id song-id)))
 
 
 ;; Song Video Links
 
 (defn add-song-external-video-link [song-id link]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$addToSet {:external-video-links link}}))
+  (with-auto-object-id [song-id]
+    (mc/update "songs" {:_id song-id} {$addToSet {:external-video-links link}})))
 
 (defn del-song-external-video-link [song-id link]
-  (mc/update "songs" {:_id (ObjectId. song-id)} {$pull {:external-video-links link}}))
+  (with-auto-object-id [song-id]
+    (mc/update "songs" {:_id song-id} {$pull {:external-video-links link}})))
 
 
 ;; Users Favourites
@@ -109,19 +116,15 @@
   (with-auto-object-id [user-id]
     (mc/update "users" {:_id user-id} {$addToSet {:favourites song-id}})))
 
-(defn del-song-from-favourites [user-id song-id]
+(defn del-song-from-favourites [song-id user-id]
   (with-auto-object-id [user-id]
-    (mc/update "users" {:_id (ObjectId. user-id)} {$pull {:favourites song-id}})))
+    (mc/update "users" {:_id user-id} {$pull {:favourites song-id}})))
 
 ;;Users visited songs
 
 (defn add-song-to-visited [user-id song-id]
   (with-auto-object-id [user-id]
     (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}})))
-
-(defn del-song-from-visited [user-id song-id]
-  (with-auto-object-id [user-id]
-    (mc/update "users" {:_id (ObjectId. user-id)} {$pull {:visited song-id}})))
 
 
 ;; Users
@@ -142,7 +145,7 @@
 ;; Notes
 
 (defn add-new [username newtext]
-  (mc/insert "news" {:_id (ObjectId.) :username username :text newtext :date-created (new Date)}))
+    (mc/insert "news" {:_id (ObjectId.) :username username :text newtext :date-created (new Date)}))
 
 (defn get-all-news []
   (mq/with-collection "news"

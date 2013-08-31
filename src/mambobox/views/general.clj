@@ -109,7 +109,7 @@
                :style (str "background-color:" tag-color)
                :data-toggle "dropdown"} tag-name]
      [:ul {:class "dropdown-menu"}
-      [:li "Remove"]]]))
+      [:li "Quitar"]]]))
 
 (defn render-tag-label [tag-name extra-class & icon]
   (let [tag-color (get tags-color-map tag-name)

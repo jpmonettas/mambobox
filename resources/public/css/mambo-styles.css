@@ -44,6 +44,14 @@ and (max-width : 1280px) {
 .search-section button{
 }
 
+#search-input-div{
+    margin-bottom: 10px;
+}
+
+#collection-filter-div{
+    text-align: center;
+}
+
 .tags-container{
     margin-top:10px;
 }
@@ -63,12 +71,25 @@ a.accordion-toggle{
 
 ol#results-list li .tags{
     margin-top:6px;
+    padding-left:0px;
 }
 
 ol#results-list li{
     margin-top: 15px;
     border-bottom: 1px solid #E9E9E9;
     height: 90px;
+}
+
+ol#results-list li .song-name{
+    padding-left:0px;
+}
+
+ol#results-list li .song-name span{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
 }
 
 ol#results-list li .song-name i{
@@ -133,6 +154,10 @@ ul.pagination li{
 
 #main-music-detail-div .tags{
     margin-bottom:40px;
+}
+
+.detail-tag .dropdown-menu li{
+    cursor:pointer;
 }
 
 .label-wrapper-div{

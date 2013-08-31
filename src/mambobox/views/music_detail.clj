@@ -125,7 +125,7 @@
          (gen/tag-filter-accordion "Agregar Tags" "detail")]
        (when-not song-is-favourite
          [:div
-          [:button {:class "btn btn-default" :id "add-to-favourites"} [:i {:class "glyphicon glyphicon-star"}] "Favorito"]])
+          [:button {:class "btn btn-warning" :id "add-to-favourites"} [:i {:class "glyphicon glyphicon-star"}] "Favorito"]])
        (music-player-min file-path)]]]))
 
 ;; [:audio {:controls ""}
@@ -135,7 +135,7 @@
 (defn external-related-videos [song]
   (let [links (get song :external-video-links)
         song-id (get song :_id)]
-    [:div {:id "main-related-videos-div" :class "col-md-11 col-xs-12"}
+    [:div {:id "main-related-videos-div" :class "col-md-12 col-xs-12"}
      [:div {:class "sub-box"}
       [:div {:class "sub-box-title"} "Videos relacionados"]
       [:div {:class "sub-box-content clearfix"}
