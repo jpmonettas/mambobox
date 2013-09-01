@@ -4,7 +4,7 @@
   (:require [mambobox.utils :as utils]))
 
 (def ordered-tags-array
-  [["chacha" "#d9534f"]
+  [["chacha" "#ff0000"]
    ["mambo" "#9303a7"]
    ["latin-jazz" "#993366"]
    ["guaracha" "#64a8d1"]
@@ -12,6 +12,7 @@
    ["romantica" "#cb0077"]
    ["bolero" "#e5399e"]
    ["pachanga" "#999900"]
+   ["boogaloo" "#d9534f"]
    ["son" "#ff7800"]
    ["montuno" "#ff9a40"]
    ["songo" "#ffa700"]
