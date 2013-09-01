@@ -14,6 +14,7 @@
             [mambobox.controllers.users :as uc]
             [mambobox.controllers.home :as hc]
             [mambobox.views.login :as lv]
+            [mambobox.views.user-creation :as ucv]
             [mambobox.data-access :as data]
             [mambobox.utils :as utils]
             [mambobox.config])
@@ -106,6 +107,14 @@
  
   ;; Login Page
   (GET "/login" [] (lv/login))
+
+  (GET "/users/" [] (ucv/create-user-view))
+
+  (POST "/users/" [firstname lastname username password password2] (uc/create-user firstname
+                                                                                   lastname
+                                                                                   username
+                                                                                   password
+                                                                                   password2))
 
   (GET "/favicon.ico" [] (resp/redirect "/"))
 

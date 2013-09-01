@@ -265,8 +265,11 @@ ul.pagination li{
     margin-bottom:10px;
 }
 
+div.registration{
+    margin-top:6px;
+}
 
-#login-main-div{
+#login-main-div, #user-create-main-div{
     margin-top:10%;
 }
 

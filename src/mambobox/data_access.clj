@@ -129,8 +129,8 @@
 
 ;; Users
 
-(defn add-user [username plainpass]
-  (mc/insert "users" {:_id (ObjectId.) :username username :password (creds/hash-bcrypt plainpass)}))
+(defn add-user [username plainpass first-name last-name]
+  (mc/insert "users" {:_id (ObjectId.) :first-name first-name :last-name last-name :username username :password (creds/hash-bcrypt plainpass)}))
   
 (defn get-user-by-username [username]
   (mc/find-one-as-map "users" {:username username}))
