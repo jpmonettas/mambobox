@@ -28,6 +28,7 @@
         continue (and (= (count errors) 1) (nil? (first errors)))]
     (if continue
       (do
+        (log/info "Created user" username "first name :" first-name "last name:" last-name "invitation:" invitation)
         (data/add-user username password first-name last-name)
         (data/remove-invitation invitation)
         (login username))
