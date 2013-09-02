@@ -22,7 +22,7 @@
                        (when (= collection-filter "all") {:checked ""})) "Todo"]]
        [:label {:class (str "btn btn-primary " (when (= collection-filter "favourites") "active"))}
         [:input (merge {:type "radio" :name "collection-filter" :value "favourites"}
-                       (when (= collection-filter "favourites") {:checked ""})) "Favoritos"]]]]]]])
+                       (when (= collection-filter "favourites") {:checked ""})) "Mis Favoritos"]]]]]]])
 
 
 
