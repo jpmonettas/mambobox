@@ -110,11 +110,12 @@
 
   (GET "/users/" [] (ucv/create-user-view))
 
-  (POST "/users/" [firstname lastname username password password2] (uc/create-user firstname
+  (POST "/users/" [firstname lastname username password password2 invitation] (uc/create-user firstname
                                                                                    lastname
                                                                                    username
                                                                                    password
-                                                                                   password2))
+                                                                                   password2
+                                                                                   invitation))
 
   (GET "/favicon.ico" [] (resp/redirect "/"))
 

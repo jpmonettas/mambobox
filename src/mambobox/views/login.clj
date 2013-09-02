@@ -28,8 +28,8 @@
                [:div {:class "col-lg-10"}
                 [:input {:type "password" :class "form-control" :id "inputPassword" :name "password"}]]]
               [:div {:class "form-group"}
-               [:div {:class "col-md-offset-5 col-md-2 col-xs-offset-5 col-xs-5"}
-                [:button {:type "submit" :class "btn btn-default"} "Entrar"]]
+               [:div {:class "col-md-offset-5 col-md-2 col-xs-offset-5 col-xs-7"}
+                [:button {:type "submit" :class "btn btn-primary"} "Entrar"]]
                [:div {:class "col-md-offset-2 col-md-2 col-xs-offset-5 col-xs-5 registration"}
                 [:a {:href "/users/"} "Registrate"]]]]]]]]]]
        (gen/footer-includes)])))

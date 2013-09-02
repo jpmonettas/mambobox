@@ -43,7 +43,7 @@
                [:label {:for "inputPassword" :class "col-lg-2 control-label"} "Contraseña"]
                [:div {:class "col-lg-10"}
                 [:input {:type "password" :class "form-control" :id "inputPassword" :name "password"}]
-                (when (contains? errors :password) [:div {:class "alert alert-danger"} "Debes ingresar un password"])]]
+                (when (contains? errors :password) [:div {:class "alert alert-danger"} "Debes ingresar una contraseña"])]]
 
               [:div {:class "form-group"}
                [:label {:for "inputPassword2" :class "col-lg-2 control-label"} " "]
@@ -51,8 +51,14 @@
                 [:input {:type "password" :class "form-control" :id "inputPassword2" :placeholder "Vuelve a escribir tu contraseña" :name "password2"}]]]
 
               [:div {:class "form-group"}
+               [:label {:for "inputInvitation" :class "col-lg-2 control-label"} "Invitacion"]
+               [:div {:class "col-md-10"}
+                [:input {:type "text" :class "form-control" :id "invitation" :placeholder "" :name "invitation"}]
+                (when (contains? errors :invitation) [:div {:class "alert alert-danger"} "Verifica tu nro de invitacion"])]]
+
+              [:div {:class "form-group"}
                [:div {:class "col-md-offset-5 col-md-5 col-xs-offset-5 col-xs-5"}
-                [:button {:type "submit" :class "btn btn-default"} "Registrame"]]]]]]]]]]
+                [:button {:type "submit" :class "btn btn-primary"} "Registrame"]]]]]]]]]]
        (gen/footer-includes)])))
 
 

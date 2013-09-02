@@ -139,6 +139,15 @@
   (with-auto-object-id [user-id]
     (mc/find-one-as-map "users" {:_id user-id})))
 
+(defn create-invitation []
+  (mc/insert "invitations" {:number (str (int (rand 10000)))}))
+
+(defn check-invitation [number]
+  (mc/find-one-as-map "invitations" {:number number}))
+
+(defn remove-invitation [number]
+  (mc/remove "invitations" {:number number}))
+
 (defn get-all-users []
   (mc/find-maps "users"))
 
