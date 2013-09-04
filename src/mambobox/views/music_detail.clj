@@ -6,22 +6,6 @@
 
 
                     
-;; (def select-tag-modal 
-;;   [:div {:class "modal fade active" :id "select-tag-modal"}
-;;    [:div {:class "modal-dialog"}
-;;     [:div {:class "modal-content"}
-;;      [:div {:class "modal-header"}
-;;       [:button {:type "button" :class "close" :data-dismiss "modal" :aria-hidden "true"} "&times;"]
-;;       [:h4 {:class "modal-title"} "Seleccion de etiqueta"]]
-;;      [:div {:class "modal-body"} 
-;;       [:div {:id "tags-container" :class "tags-container clearfix"}
-;;        (gen/render-all-tags "select")]
-;;       [:div {:id "selected-tag-div"}
-;;        [:span  "Etiqueta seleccionada"] [:div {:id "selected-tag"} "Ninguna"]]]
-;;      [:div {:class "modal-footer"}
-;;       [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
-;;       [:button {:type "button" :class "btn btn-primary" :id "add-tag"} "Añadir"]]]]])
-
 (defn edit-song-modal [song-id song-name artist]
   [:form {:action (str "/music/" song-id) :method "POST"}
    [:div {:class "modal fade active" :id "edit-song-modal"}

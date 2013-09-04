@@ -33,10 +33,15 @@ $(function (){
 
 /* For controlling clicks on tags */
 $(function (){
+    // This is a super horrible patch, but I don't want to be
+    // dealing with html and JS now
    $(".label.music-tag.search").click(function(){
-        var tagName=$(this).text();
-        $("#tag-filter").val(tagName);
-        $(".search-section form").submit();
+       var spanText=$(this).text();
+       var regexRes=/(.*) [0-9]+/.exec(spanText);
+       var tagName=regexRes?regexRes[1]:spanText;
+
+       $("#tag-filter").val(tagName);
+       $(".search-section form").submit();
     });
 });
 

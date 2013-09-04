@@ -61,13 +61,14 @@
     [:div {:id "banner-text-div"} "MamboBox"]
     [:div {:id "logo-div"}]])
 
-(defn render-all-tags [div-extra-class]
+(defn render-all-tags [div-extra-class freaq-map]
   (html 
    (for [[tag color] ordered-tags-array]
      [:div {:class "label-wrapper-div"}
-      [:span {:class (str "label music-tag " div-extra-class) :style (str "background-color:" color)} tag]])))
+      [:span {:class (str "label music-tag " div-extra-class) :style (str "background-color:" color)}
+       (str tag " " (when freaq-map (get freaq-map tag 0)))]])))
 
-(defn tag-filter-accordion [title extra-class]
+(defn tag-filter-accordion [title extra-class freaq-map]
   [:div {:class "accordion" :id "tags-accordion"}
    [:div {:class "panel-group"}
     [:div {:class "panel panel-default"}
@@ -77,7 +78,7 @@
     [:div {:id "collapse" :class "panel-collapse collapse"}
      [:div {:class "panel-body"}
       [:div {:class "clearfix tags-container"}
-              (render-all-tags extra-class)]]]]]])
+              (render-all-tags extra-class freaq-map)]]]]]])
 
 (defn navbar [active-tab username]
   [:nav {:class "navbar navbar-default" :role "navigation"}

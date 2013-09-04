@@ -14,6 +14,13 @@
             [mambobox.config :as config]))
 
 
+(defn get-tags-freaquency-map [songs]
+  (reduce (fn [map next] 
+            (assoc map next (inc (get map next 0)))) 
+          {}
+          (reduce concat (map #(:tags %) songs))))
+
+
 (defn accept-song-for-query? [song qstring]
   (let [song-name (lower-case (get song :name))
         song-artist (lower-case (get song :artist))]                              
@@ -37,7 +44,7 @@
     (utils/sub-list col first-song last-song)))
         
 
-(defn search-music [username q tag cur-page page-size all-songs]
+(defn search-music [q tag all-songs]
   (dlet [processed-q (when q (lower-case q))
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
@@ -48,15 +55,11 @@
                              (filter (fn [song]
                                        (song-contains-tag? song tag))
                                      query-filtered-songs)
-                             query-filtered-songs)
-        num-pages (get-cant-pages tag-filtered-songs page-size)
-        cur-page-songs (get-collection-page tag-filtered-songs cur-page page-size)]
-    (log/info username "searchig for [" q "] with tag [" tag "] retrieved" (count tag-filtered-songs) "songs. Page:" cur-page)
-    {:num-pages num-pages
-     :songs-found cur-page-songs}))
+                             query-filtered-songs)]
+        tag-filtered-songs))
 
 (defn music-search [user-id q tag collection-filter cur-page]
-  (let [user (data/get-user-by-id user-id)
+  (dlet [user (data/get-user-by-id user-id)
         username (:username user)
         user-favourite-song-ids (:favourites user)
         collection-filter (if collection-filter collection-filter "all")
@@ -64,17 +67,20 @@
         base-collection (cond (= collection-filter "all") (data/get-all-songs)
                               (= collection-filter "favourites") (when-not (empty? user-favourite-song-ids)
                                                                    (data/get-all-songs-from-ids user-favourite-song-ids)))
-        search-result (search-music username q tag cur-page config/result-page-size base-collection)
-        songs-found (:songs-found search-result)
-        num-pages (:num-pages search-result)]
-        (music-search-view username
-                           songs-found
-                           q
-                           tag
-                           collection-filter
-                           cur-page
-                           num-pages
-                           (= collection-filter "favourites"))))
+        search-result (search-music q tag base-collection)
+        tags-freaquency-map (get-tags-freaquency-map search-result)
+        num-pages (get-cant-pages search-result  config/result-page-size)
+        cur-page-songs (get-collection-page search-result cur-page config/result-page-size)]
+    (log/info username "searching for [" q "] with tag [" tag "] and page" cur-page "retrieved" (count search-result) "songs")
+    (music-search-view username
+                       cur-page-songs
+                       q
+                       tag
+                       collection-filter
+                       cur-page
+                       num-pages
+                       tags-freaquency-map
+                       (= collection-filter "favourites"))))
 
 (defn is-song-user-favourite? [song-id user]
   (let [favourites (:favourites user)]

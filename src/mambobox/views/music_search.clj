@@ -45,10 +45,10 @@
      [:span {:class "right-arrow"} "&raquo;"]]]])
 
 
-(defn search-results [result-col cur-page num-pages favs]
+(defn search-results [result-col cur-page num-pages tags-freaq-map favs]
   (if-not (empty? result-col)
     [:div {:id "results-main-div" :class "col-md-12 col-xs-12"}
-     (gen/tag-filter-accordion "Filtrar por etiqueta" "search")
+     (gen/tag-filter-accordion "Filtrar por etiqueta" "search" tags-freaq-map)
      [:ol {:id "results-list"}
       (for [result result-col
             :let [song-id (get result :_id)
@@ -75,7 +75,7 @@
      "No se encontrarons resultados para su busqueda"]))
 
 
-(defn music-search-view [username result-col q tag collection-filter cur-page num-pages favs]
+(defn music-search-view [username result-col q tag collection-filter cur-page num-pages tags-freaq-map favs]
     (html5
       gen/head
       [:body
@@ -96,6 +96,6 @@
            [:div {:class "col-md-1 tag-search"}
             (when (not (empty? tag)) (gen/render-tag-label tag "remove" "glyphicon-remove"))]])
         [:div {:class "row"}
-         (search-results result-col cur-page num-pages favs)]]
+         (search-results result-col cur-page num-pages tags-freaq-map favs)]]
        (gen/footer-includes)]))
      
