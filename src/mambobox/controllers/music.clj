@@ -11,7 +11,8 @@
             [clojure.tools.logging :as log]
             [fuzzy-string.core :as fuzz-str]
             [clojure.data.json :as json]
-            [mambobox.config :as config]))
+            [mambobox.config :as config]
+            [clojure.set :as set]))
 
 
 (defn accept-song-for-query? [song qstring]
@@ -54,6 +55,43 @@
     (log/info username "searchig for [" q "] with tag [" tag "] retrieved" (count tag-filtered-songs) "songs. Page:" cur-page)
     {:num-pages num-pages
      :songs-found cur-page-songs}))
+
+(defn get-all-favourites [users]
+  (into #{} (reduce concat (map #(:favourites %) users))))
+
+(defn get-ids-from-songs [songs]
+  (into #{} (map #(.toString (:_id %)) songs)))
+
+(defn make-surprise-me-vector [user-favourites all-favourites most-visited favs-min]
+  (let [user-favs-set (into #{} user-favourites)
+        all-favs-set (into #{} all-favourites)
+        most-visited-set (into #{} most-visited)
+        others-favs-set (set/difference all-favs-set user-favs-set)
+        surprise-me-col (if (> (count others-favs-set) favs-min)
+                           others-favs-set
+                           (set/difference
+                            (set/union others-favs-set most-visited-set) user-favs-set))]
+    (into [] surprise-me-col)))
+
+(defn surprise-me [user-id]
+  (let [user (data/get-user-by-id user-id)
+        user-favs (:favourites user)
+        all-users (data/get-all-users)
+        all-favourites (get-all-favourites all-users)
+        most-visited-songs (data/get-most-visited-songs)
+        most-visited-songs-ids (get-ids-from-songs most-visited-songs)
+        surprise-me-vector (make-surprise-me-vector user-favs
+                                                    all-favourites
+                                                    most-visited-songs-ids
+                                                    (config/surprise-me-favs-min))
+        random-song-index (rand (count surprise-me-vector))
+        choosed-song-id (get surprise-me-vector random-song-index)
+        song (data/get-song-by-id choosed-song-id)]
+    (log/info "Song" (:name song) "choosed for" (:usename user))
+    (redirect (str "/music/" (:_id song)))))
+        
+    
+        
 
 (defn music-search [user-id q tag collection-filter cur-page]
   (let [user (data/get-user-by-id user-id)

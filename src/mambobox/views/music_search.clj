@@ -22,10 +22,15 @@
                        (when (= collection-filter "all") {:checked ""})) "Todo"]]
        [:label {:class (str "btn btn-primary " (when (= collection-filter "favourites") "active"))}
         [:input (merge {:type "radio" :name "collection-filter" :value "favourites"}
-                       (when (= collection-filter "favourites") {:checked ""})) "Favoritos"]]]]]]])
+                       (when (= collection-filter "favourites") {:checked ""})) "Mis Favoritos"]]]]]]])
 
 
-
+(defn surprise-me []
+  [:div {:class "jumbotron"}
+   [:div {:class "container"}
+    [:h3 "Hello"]
+    [:p "No se te ocurre que escuchar? Lo elegimos por ti"]
+    [:p [:a {:class "btn btn-primary btn-lg"} "Sorprendeme!"]]]])
 
 (defn pagination [num-pages cur-page]
   [:div {:id "pagination-div"}
@@ -84,6 +89,9 @@
          gen/banner]
         [:div {:class "row"}
          (gen/navbar :music username)]
+        [:div {:class "row"}
+         [:div {:class "col-md-12 col-xs-12"}
+          (surprise-me)]]
         [:div {:class "row"}
          [:div {:class "col-md-12 col-xs-12"}
           (search-box q tag collection-filter)]]

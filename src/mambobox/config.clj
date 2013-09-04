@@ -6,6 +6,7 @@
 (def music-dir (System/getenv "MAMBOBOX_MUSIC_DIR"))
 
 (def result-page-size 10)
+(def surprise-me-favs-min 30)
 
 (let [environment (trim (lower-case (System/getenv "MAMBOBOX_ENV")))]
   (cond (= environment "prod")

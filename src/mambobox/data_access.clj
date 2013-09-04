@@ -80,6 +80,15 @@
   (with-auto-object-id [song-id]
     (mc/update "songs" {:_id song-id} {$inc {:visits 1}})))
 
+(defn get-most-visited-songs 
+  ([] (get-most-visited-songs 30))
+  ([number]
+  (mq/with-collection "songs"
+    (mq/find {})
+    (mq/sort (array-map :visits -1))
+    (mq/limit number))))
+    
+
 ;; Song Tags
 
 (defn add-song-tag [song-id tagname]

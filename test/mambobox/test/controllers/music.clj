@@ -54,3 +54,10 @@
         
 
                    
+(deftest test-make-suprise-me-vector
+  (let [my-favs [1 2 3 4]
+        all-favs [2 3 4 5 6 7 8]
+        most-visited [1 3 4 15]]
+    (is (= (make-surprise-me-vector my-favs all-favs  most-visited 2) [5 6 7 8]))
+    (is (= (make-surprise-me-vector my-favs all-favs  most-visited 10) [5 6 7 8 15]))))
+        
