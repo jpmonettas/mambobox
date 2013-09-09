@@ -54,6 +54,7 @@
             :let [song-id (get result :_id)
                   song-name (get result :name)
                   artist (get result :artist)
+                  visits (get result :visits)
                   tags (get result :tags)
                   video-links (get result :external-video-links)]]
         [:li {:class "result"}
@@ -62,7 +63,8 @@
            [:div {:class "song-name col-md-12 col-xs-12"} 
             [:a {:href (str "/music/" song-id)} [:span song-name]] (when-not (empty? video-links) [:i {:class "glyphicon glyphicon-facetime-video"}])]]
           [:div {:class "row"}
-           [:div {:class "artist"} artist]]
+           [:div {:class "artist col-md-10 col-xs-12"} artist]
+           [:div {:class "song-visits col-md-2 col-xs-12"} (str "Visto " visits " veces")]]
           [:div {:class "row"}        
            [:div {:class "tags col-xs-9"}
             (for [tag tags]

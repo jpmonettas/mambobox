@@ -106,7 +106,7 @@
         (for [tag tags]
           (gen/render-detail-tag-label tag))]
         [:div {:class "tags-box"}
-         (gen/tag-filter-accordion "Agregar Tags" "detail")]
+         (gen/tag-filter-accordion "Agregar Tags" "detail" nil)]
        (when-not song-is-favourite
          [:div
           [:button {:class "btn btn-warning" :id "add-to-favourites"} [:i {:class "glyphicon glyphicon-star"}] "Favorito"]])

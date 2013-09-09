@@ -77,12 +77,23 @@ ol#results-list li .tags{
 ol#results-list li{
     margin-top: 15px;
     border-bottom: 1px solid #E9E9E9;
-    height: 90px;
+    height: 105px;
 }
 
 ol#results-list li .song-name{
     padding-left:0px;
 }
+
+ol#results-list li .artist{
+    padding-left:0px;
+}
+
+ol#results-list li .song-visits{
+    color:#adadad;
+    text-align:left;
+    padding-left:0px;
+}
+
 
 ol#results-list li .song-name span{
     overflow: hidden;

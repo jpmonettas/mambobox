@@ -66,7 +66,9 @@
    (for [[tag color] ordered-tags-array]
      [:div {:class "label-wrapper-div"}
       [:span {:class (str "label music-tag " div-extra-class) :style (str "background-color:" color)}
-       (str tag " " (when freaq-map (get freaq-map tag 0)))]])))
+       (str tag " " (when freaq-map
+                      (html [:span {:class "badge" :style (str "color:" color ";background-color:#ffffff")}
+                             (get freaq-map tag)])))]])))
 
 (defn tag-filter-accordion [title extra-class freaq-map]
   [:div {:class "accordion" :id "tags-accordion"}
