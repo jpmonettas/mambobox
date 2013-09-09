@@ -25,7 +25,11 @@
   (let [song-name (lower-case (get song :name))
         song-artist (lower-case (get song :artist))]                              
     (or (> (fuzz-str/dice song-name qstring) 0.5) 
-        (> (fuzz-str/dice song-artist qstring) 0.5)))) 
+        (> (fuzz-str/dice song-artist qstring) 0.5)
+        (and (> (count qstring) 3)
+             (or
+              (utils/str-contains song-name qstring)
+              (utils/str-contains song-artist qstring)))))) 
                           
 (defn song-contains-tag? [song tag]
   (let [tags (get song :tags)]
