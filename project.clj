@@ -16,7 +16,8 @@
                  [clj-time "0.6.0"]
                  [ring/ring-jetty-adapter "1.2.0"]
                  [clj-logging-config "1.9.10"]
-                 [org.clojure/tools.nrepl "0.2.3"]]
+                 [org.clojure/tools.nrepl "0.2.3"]
+                 [clj-stacktrace "0.2.5"]]
   :main mambobox.handler
   :plugins [[lein-ring "0.8.6"]]
   :ring {:handler mambobox.handler/app
