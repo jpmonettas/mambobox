@@ -118,7 +118,7 @@
                                                                                    invitation))
 
   (GET "/favicon.ico" [] (resp/redirect "/"))
-
+  (GET "/apple-touch-icon.png" [] (resp/redirect "/"))
   ;; Resources
   (route/resources "/"))
 
