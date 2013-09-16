@@ -1,4 +1,4 @@
-(defproject mambobox "1.1.0-SNAPSHOT"
+(defproject mambobox "1.2.0-SNAPSHOT"
   :description "Mambobox"
   :url "http://www.mambobox.com.uy"
   :dependencies [[org.clojure/clojure "1.5.1"]      
