@@ -26,8 +26,6 @@
      [:div {:class "row"}
       [:button {:class "btn btn-primary col-md-2 col-md-offset-9 col-xs-12" :type "submit"} "Agregar"]]]]])
 
-      
-
 (defn home-page-view [username news]
     (html5
       gen/head

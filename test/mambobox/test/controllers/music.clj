@@ -40,17 +40,38 @@
                    {:name "No te puedo querer"
                     :artist "La sucursal"
                     :tags ["rumba"]}]
-        result1 (:songs-found (search-music "user" "" "" 1 10 all-songs)) ;; All
-        result2 (:songs-found (search-music "user" "ente negra" "" 1 10 all-songs)) ;; With query name
-        result3 (:songs-found (search-music "user" "sucurzal" "" 1 10 all-songs)) ;; With query artist
-        result4 (:songs-found (search-music "user" "" "son" 1 10 all-songs)) ;; With tag
-        result5 (:songs-found (search-music "user" "" "" 1 2 all-songs))] ;; All with page
-    (is (= (count result1) 3))
-    (is (= (count result2) 1))
-    (is (= (count result3) 2))
-    (is (= (count result4) 2))
-    (is (= (count result5) 2))))
+        result1 (search-music "" "" all-songs)
+        result2 (search-music "ente negra" "" all-songs)
+        result3 (search-music "sucurzal" "" all-songs)
+        result4 (search-music "" "son" all-songs)
+        result5 (search-music "" "" all-songs)]
+    (is (= (count result1) 3) "All")
+    (is (= (count result2) 1) "With query name")
+    (is (= (count result3) 2) "With query artist")
+    (is (= (count result4) 2) "With tag")
+    (is (= (count result5) 3) "All with page")))
                    
         
+(deftest test-zero-score-songs)
 
-                   
+(deftest test-favourites-score-songs)
+
+(deftest test-visits-score-songs)
+
+(deftest test-make-scored-songs-col
+  (let [songs [{:_id "521e4d5be4b030cc0edddd99" :name "1" :visits 10}
+               {:_id "521d10e7e4b030cc0edddd94" :name "2" :visits 100}
+               {:_id "521bcc75e4b030cc0edddd8c" :name "3" :visits 20}
+               {:_id "521bcc05e4b030cc0edddd88" :name "4" :visits 5}
+               {:_id "5226a0a4e4b023c2ee81714a" :name "5" :visits 2}]
+        scored-songs1 (into [] (make-scored-songs-col songs nil nil))
+        scored-songs2 (into [] (make-scored-songs-col songs ["5226a0a4e4b023c2ee81714a"] nil))
+        scored-songs3 (into [] (make-scored-songs-col songs nil ["521bcc05e4b030cc0edddd88"]))
+        scored-songs4 (into [] (make-scored-songs-col songs ["5226a0a4e4b023c2ee81714a"] ["521bcc05e4b030cc0edddd88" "521e4d5be4b030cc0edddd99" "5226a0a4e4b023c2ee81714a"]))]
+    (is (every? identity (map #(:score %) scored-songs1)) "Check all have scores")
+    (is (= (:score (get scored-songs1 0)) 10) "Check only visits")  
+    (is (= (:score (get scored-songs1 1)) 100) "Check only visits 2")  
+    (is (= (:score (get scored-songs2 4)) 0) "Zero score user fav")
+    (is (= (:score (get scored-songs3 3)) 105) "Points per other user fav")
+    (is (= (:score (get scored-songs4 0)) 110) "Combined")
+    (is (= (:score (get scored-songs4 4)) 0) "Combined 2")))
