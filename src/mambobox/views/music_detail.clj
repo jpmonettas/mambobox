@@ -5,42 +5,6 @@
             [mambobox.views.general :as gen]))
 
 
-                    
-;; (def select-tag-modal 
-;;   [:div {:class "modal fade active" :id "select-tag-modal"}
-;;    [:div {:class "modal-dialog"}
-;;     [:div {:class "modal-content"}
-;;      [:div {:class "modal-header"}
-;;       [:button {:type "button" :class "close" :data-dismiss "modal" :aria-hidden "true"} "&times;"]
-;;       [:h4 {:class "modal-title"} "Seleccion de etiqueta"]]
-;;      [:div {:class "modal-body"} 
-;;       [:div {:id "tags-container" :class "tags-container clearfix"}
-;;        (gen/render-all-tags "select")]
-;;       [:div {:id "selected-tag-div"}
-;;        [:span  "Etiqueta seleccionada"] [:div {:id "selected-tag"} "Ninguna"]]]
-;;      [:div {:class "modal-footer"}
-;;       [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
-;;       [:button {:type "button" :class "btn btn-primary" :id "add-tag"} "Añadir"]]]]])
-
-(defn edit-song-modal [song-id song-name artist]
-  [:form {:action (str "/music/" song-id) :method "POST"}
-   [:div {:class "modal fade active" :id "edit-song-modal"}
-    [:div {:class "modal-dialog"}
-     [:div {:class "modal-content"}
-      [:div {:class "modal-header"}
-       [:button {:type "button" :class "close" :data-dismiss "modal" :aria-hidden "true"} "&times;"]
-       [:h4 {:class "modal-title"} "Edita la cancion"]]
-      [:div {:class "modal-body"} 
-       [:div {:class "song-name input-group"}
-        [:span {:class "input-group-addon"} "Tema:"]
-        [:input {:type "text" :name "newsongname" :class "form-control" :value song-name}]]
-       [:div {:class "artist input-group"}
-        [:span {:class "input-group-addon"} "Artista:"]
-        [:input {:type "text" :name "newartist" :class "form-control" :value artist}]]]
-      [:div {:class "modal-footer"}
-       [:button {:type "button" :class "btn btn-default" :data-dismiss "modal"} "Cerrar"]
-       [:button {:type "submit" :class "btn btn-primary" :id "edit-song-ok"} "Aceptar"]]]]]])
-
 ;; (defn music-player [file-path]
 ;;   [:div
 ;;    [:input {:type "hidden" :id "song-file" :value (str "/files/" file-path)}]
@@ -88,6 +52,30 @@
      [:div {:class "jp-no-solution"} "Navegador no soportado"]]]])
 
 
+(defn suggested-songs [songs]
+  [:div {:class " col-md-4"}
+   [:div {:class "sub-box"}
+    [:div {:class "sub-box-title"} "Temas sugeridos"]
+    [:div {:class "sub-box-content"}
+     [:ol {:id "results-list"}
+      (for [result songs
+            :let [song-id (get result :_id)
+                  song-name (get result :name)
+                  artist (get result :artist)
+                  tags (get result :tags)
+                  video-links (get result :external-video-links)]]
+        [:li {:class "result"}
+         [:div {:class "container"}
+          [:div {:class "row"}
+           [:div {:class "song-name col-md-12 col-xs-12"} 
+            [:a {:href (str "/music/" song-id)} [:span song-name]] (when-not (empty? video-links) [:i {:class "glyphicon glyphicon-facetime-video"}])]]
+          [:div {:class "row"}
+           [:div {:class "artist"} artist]]
+          [:div {:class "row"}        
+           [:div {:class "tags col-xs-9"}
+            (for [tag tags]
+              (gen/render-tag-label tag "search"))]]]])
+      ]]]])
 
 (defn song-details [song song-is-favourite]
   (let [song-id (get song :_id)
@@ -96,7 +84,7 @@
         uploader-username (get song :uploader-username)
         tags (get song :tags)
         file-path (get song :generated-file-name)]
-    [:div {:id "main-music-detail-div" :class "col-md-5 col-md-offset-3"}
+    [:div {:id "main-music-detail-div" :class "col-md-8"}
      [:div {:class "sub-box"}
       [:div {:class "sub-box-title"} "Información del tema"]
       [:div {:class "sub-box-content"}
@@ -128,9 +116,6 @@
           [:button {:class "btn btn-warning" :id "add-to-favourites"} [:i {:class "glyphicon glyphicon-star"}] "Favorito"]])
        (music-player-min file-path)]]]))
 
-;; [:audio {:controls ""}
-;;         [:source {:src (str "/files/" file-path) :type "audio/mpeg"}]]
-
 
 (defn external-related-videos [song]
   (let [links (get song :external-video-links)
@@ -153,7 +138,7 @@
        ]]]))
     
 
-(defn music-detail-view [username song song-is-favourite]
+(defn music-detail-view [username song song-is-favourite sug-songs]
   (html5
     gen/head
     [:body
@@ -164,6 +149,7 @@
        (gen/navbar :music username)]
       [:div {:class "row"}
        (song-details song song-is-favourite)
+       (suggested-songs sug-songs)
        ]
       [:div {:class "row"}
        (external-related-videos song)

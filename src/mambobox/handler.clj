@@ -48,6 +48,8 @@
   (GET "/music/:id" [id :as req] (mc/music-id (current-user-id req)
                                               id))
 
+  (GET "/music-surprise" [:as req] (mc/surprise-me  (current-user-id req)))
+
   (POST "/music/:id" [id newsongname newartist :as req] (mc/edit-music (current-user-id req)
                                                                        id 
                                                                        newsongname 

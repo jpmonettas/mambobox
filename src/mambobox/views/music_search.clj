@@ -28,9 +28,8 @@
 (defn surprise-me []
   [:div {:class "jumbotron"}
    [:div {:class "container"}
-    [:h3 "Hello"]
-    [:p "No se te ocurre que escuchar? Lo elegimos por ti"]
-    [:p [:a {:class "btn btn-primary btn-lg"} "Sorprendeme!"]]]])
+    [:p "No se te ocurre que escuchar?"]
+    [:p [:a {:class "btn btn-primary btn-lg surprise-me"} "Sorprendeme!"]]]])
 
 (defn pagination [num-pages cur-page]
   [:div {:id "pagination-div"}

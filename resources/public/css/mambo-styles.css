@@ -212,7 +212,6 @@ ul.pagination li{
 
 #main-related-videos-div{
     text-align:center;
-    margin-top:25px;
 }
 
 .sub-box{
@@ -220,6 +219,7 @@ ul.pagination li{
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    margin-bottom: 20px;
 }
 
 .sub-box-content{

@@ -3,7 +3,8 @@
             [monger.collection :as mc]
             [monger.query :as mq]
             [clojure.tools.logging :as log]
-            [cemerick.friend.credentials :as creds])
+            [cemerick.friend.credentials :as creds]
+            [mambobox.utils :as utils])
   (:use monger.operators
         [mambobox.utils :only [defnlog]])
   (:import [org.bson.types ObjectId]
@@ -15,33 +16,6 @@
 (mg/set-db! (mg/get-db "mambobox"))
 
 
-;; (with-auto-object-id [user-id]
-;;     (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}}))
-
-;; Macroexpands to ->
-
-;; (let [user-id (if (instance? java.lang.String user-id)
-;;                 (ObjectId. user-id)
-;;                 user-id)]
-;;   (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}}))
-
-(defmacro with-auto-object-id [ids & forms]
-  `(let 
-       ~(into []
-              (reduce 
-               concat
-               (map
-                (fn [bind-name]
-                  [bind-name `(if (vector? ~bind-name)
-                                (if (instance? String (first ~bind-name))
-                                  (map #(ObjectId. %) ~bind-name)
-                                  ~bind-name)
-                                (if (instance? String ~bind-name)
-                                  (ObjectId. ~bind-name)
-                                  ~bind-name))])
-                ids)))
-     ~@forms))
-
 
 ;; Songs
 
@@ -51,14 +25,14 @@
     (mq/sort (array-map :date-created -1))))
 
 (defn get-all-songs-from-ids [ids-vector]
-  (with-auto-object-id [ids-vector]
+  (utils/with-auto-object-id [ids-vector]
     (mq/with-collection "songs"
       (mq/find {:_id {$in ids-vector}})
       (mq/sort (array-map :date-created -1)))))
   
 
 (defn get-song-by-id [song-id]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
     (mc/find-one-as-map "songs" {:_id song-id})))
 
 (defn get-song-by-file-name [file-name]
@@ -77,30 +51,30 @@
                                  :date-created (new Date)}))
 
 (defn track-song-access [song-id]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
     (mc/update "songs" {:_id song-id} {$inc {:visits 1}})))
 
 (defn get-most-visited-songs 
   ([] (get-most-visited-songs 30))
   ([number]
-  (mq/with-collection "songs"
-    (mq/find {})
-    (mq/sort (array-map :visits -1))
-    (mq/limit number))))
+       (mq/with-collection "songs"
+         (mq/find)
+         (mq/sort (array-map :visits -1))
+         (mq/limit number))))
     
 
 ;; Song Tags
 
 (defn add-song-tag [song-id tagname]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
     (mc/update "songs" {:_id song-id} {$addToSet {:tags tagname}})))
       
 (defn del-song-tag [song-id tagname]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
     (mc/update "songs" {:_id song-id} {$pull {:tags tagname}})))
 
 (defn update-song [song-id song-name artist]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
   (when (not (empty? song-name))
     (mc/update "songs" {:_id song-id} {$set {:name song-name}}))
   (when (not (empty? artist))
@@ -111,28 +85,28 @@
 ;; Song Video Links
 
 (defn add-song-external-video-link [song-id link]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
     (mc/update "songs" {:_id song-id} {$addToSet {:external-video-links link}})))
 
 (defn del-song-external-video-link [song-id link]
-  (with-auto-object-id [song-id]
+  (utils/with-auto-object-id [song-id]
     (mc/update "songs" {:_id song-id} {$pull {:external-video-links link}})))
 
 
 ;; Users Favourites
 
 (defn add-song-to-favourites [song-id user-id]
-  (with-auto-object-id [user-id]
+  (utils/with-auto-object-id [user-id]
     (mc/update "users" {:_id user-id} {$addToSet {:favourites song-id}})))
 
 (defn del-song-from-favourites [song-id user-id]
-  (with-auto-object-id [user-id]
+  (utils/with-auto-object-id [user-id]
     (mc/update "users" {:_id user-id} {$pull {:favourites song-id}})))
 
 ;;Users visited songs
 
 (defn add-song-to-visited [user-id song-id]
-  (with-auto-object-id [user-id]
+  (utils/with-auto-object-id [user-id]
     (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}})))
 
 
@@ -145,7 +119,7 @@
   (mc/find-one-as-map "users" {:username username}))
 
 (defn get-user-by-id [user-id]
-  (with-auto-object-id [user-id]
+  (utils/with-auto-object-id [user-id]
     (mc/find-one-as-map "users" {:_id user-id})))
 
 (defn create-invitation []

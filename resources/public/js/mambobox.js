@@ -22,6 +22,14 @@ $(function (){
     });
 });
 
+/* For the surpriseme button */
+$(function (){
+    $(".surprise-me").click(function(){
+        window.location="/music-surprise";
+    });
+});
+
+
 /* For editing song fields */
 $(function (){
     $(".song-edit-button").click(function(){

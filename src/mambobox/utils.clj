@@ -11,11 +11,11 @@
         [clj-time.coerce :as ctc]
         [clj-stacktrace.repl])
   (:import [java.io File]
+           [org.bson.types ObjectId]
            [java.util UUID]
            [java.lang Integer]
            [org.jaudiotagger.audio AudioFileIO]
            [org.jaudiotagger.tag FieldKey]))
-
 
 
 (defn gen-uuid [file] (md5 file))
@@ -43,6 +43,8 @@
 (defn parse-int [str]
   (Integer/parseInt str))
 
+(defn make-random-subset [col size]
+  (sub-list (shuffle col) 0 size))
 
 (defn wrap-my-exception-logger [handler]
   (fn [request]
@@ -87,6 +89,32 @@
        (log/debug "Returned: " ret#)
        ret#)))
 
+;; (with-auto-object-id [user-id]
+;;     (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}}))
+
+;; Macroexpands to ->
+
+;; (let [user-id (if (instance? java.lang.String user-id)
+;;                 (ObjectId. user-id)
+;;                 user-id)]
+;;   (mc/update "users" {:_id user-id} {$addToSet {:visited song-id}}))
+
+(defmacro with-auto-object-id [ids & forms]
+  `(let 
+       ~(into []
+              (reduce 
+               concat
+               (map
+                (fn [bind-name]
+                  [bind-name `(if (vector? ~bind-name)
+                                (if (instance? String (first ~bind-name))
+                                  (map #(ObjectId. %) ~bind-name)
+                                  ~bind-name)
+                                (if (instance? String ~bind-name)
+                                  (ObjectId. ~bind-name)
+                                  ~bind-name))])
+                ids)))
+     ~@forms))
 
 
 

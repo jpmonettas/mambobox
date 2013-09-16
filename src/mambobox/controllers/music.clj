@@ -39,7 +39,7 @@
         
 
 (defn search-music [username q tag cur-page page-size all-songs]
-  (dlet [processed-q (when q (lower-case q))
+  (let [processed-q (when q (lower-case q))
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
                                          (accept-song-for-query? song processed-q))
@@ -60,40 +60,80 @@
   (into #{} (reduce concat (map #(:favourites %) users))))
 
 (defn get-ids-from-songs [songs]
-  (into #{} (map #(.toString (:_id %)) songs)))
+  (when songs
+    (into #{} (map #(.toString (:_id %)) songs))))
 
-(defn make-surprise-me-vector [user-favourites all-favourites most-visited favs-min]
-  (let [user-favs-set (into #{} user-favourites)
-        all-favs-set (into #{} all-favourites)
-        most-visited-set (into #{} most-visited)
-        others-favs-set (set/difference all-favs-set user-favs-set)
-        surprise-me-col (if (> (count others-favs-set) favs-min)
-                           others-favs-set
-                           (set/difference
-                            (set/union others-favs-set most-visited-set) user-favs-set))]
-    (into [] surprise-me-col)))
+(defn zero-score-songs [songs]
+  (map #(assoc % :score 0) songs))
 
-(defn surprise-me [user-id]
-  (let [user (data/get-user-by-id user-id)
-        user-favs (:favourites user)
+(defn favourites-score-songs [songs favourites-ids points]
+  (map (fn [song]
+         (let [song-id (:_id song)]
+           (utils/with-auto-object-id [song-id favourites-ids]
+             (if (some #{song-id} favourites-ids)
+               (assoc song :score (+ (:score song) points))
+               song))))
+           songs))
+
+(defn visits-score-songs [songs]
+  (let [most-visited-value (reduce max 0 (map #(:visits %) songs))]
+    (map (fn [song]
+           (let [visits-percentage-points (/ (* (:visits song) 100) most-visited-value)]
+             (assoc song :score (+ (:score song) visits-percentage-points))))
+         songs)))
+
+(defn zero-score-user-fav-songs [songs user-favs-songs-ids]
+  (map (fn [song]
+         (let [song-id (:_id song)]
+           (utils/with-auto-object-id [song-id user-favs-songs-ids]
+             (if (some #{song-id} user-favs-songs-ids)
+               (assoc song :score 0)
+               song))))
+           songs))
+
+(defn make-scored-songs-col [all-songs user-favourites-ids all-favourites-ids]
+    (->
+     all-songs
+     (zero-score-songs)
+     (favourites-score-songs all-favourites-ids 100)
+     (visits-score-songs)
+     (zero-score-user-fav-songs user-favourites-ids)))
+
+
+(defn sort-songs-by-visits [songs]
+  (sort-by :visits > songs))
+
+(defn make-top-suggested-songs-col [scored-songs]
+  (-> 
+   scored-songs 
+   (sort-songs-by-visits)
+   (utils/sub-list 0 config/top-scored-as-suggested-size)))
+   
+(defn get-suggested-songs-for-user [user-id]
+  {:io? true}
+  (let [all-songs (data/get-all-songs)
+        user (data/get-user-by-id user-id)
+        user-favs-ids (:favourites user)
         all-users (data/get-all-users)
-        all-favourites (get-all-favourites all-users)
-        most-visited-songs (data/get-most-visited-songs)
-        most-visited-songs-ids (get-ids-from-songs most-visited-songs)
-        surprise-me-vector (make-surprise-me-vector user-favs
-                                                    all-favourites
-                                                    most-visited-songs-ids
-                                                    (config/surprise-me-favs-min))
-        random-song-index (rand (count surprise-me-vector))
-        choosed-song-id (get surprise-me-vector random-song-index)
-        song (data/get-song-by-id choosed-song-id)]
+        all-favourites-ids (get-all-favourites all-users)]
+    (->
+     (make-scored-songs-col all-songs user-favs-ids all-favourites-ids)
+     (make-top-suggested-songs-col)
+     (utils/make-random-subset config/suggesteds-size))))
+        
+  
+(defn surprise-me [user-id]
+  {:io? true}
+  (let [user (data/get-user-by-id user-id)
+        surprise-me-vector (into [] (get-suggested-songs-for-user user-id))
+        random-song-index (int (rand (count surprise-me-vector)))
+        song (get surprise-me-vector random-song-index)]
     (log/info "Song" (:name song) "choosed for" (:usename user))
     (redirect (str "/music/" (:_id song)))))
-        
-    
-        
+                
 
 (defn music-search [user-id q tag collection-filter cur-page]
+  {:io? true}
   (let [user (data/get-user-by-id user-id)
         username (:username user)
         user-favourite-song-ids (:favourites user)
@@ -118,26 +158,32 @@
   (let [favourites (:favourites user)]
         (some #{(.toString song-id)} favourites)))
 
+
 (defn music-id [user-id song-id]
+  {:io? true}
   (let [song (data/get-song-by-id song-id)
         user (data/get-user-by-id user-id)
-        username (:username user)]
+        username (:username user)
+        selected-suggesteds-songs (get-suggested-songs-for-user user-id)]
     (data/track-song-access song-id)
     (data/add-song-to-visited user-id song-id)
     (log/info username "seeing" (:name song) "[" song-id "]")
-    (music-detail-view username song (is-song-user-favourite? song-id user))))
+    (music-detail-view username song (is-song-user-favourite? song-id user) selected-suggesteds-songs)))
 
-(defn edit-music [user-id song-id song-name artist] 
+(defn edit-music [user-id song-id song-name artist]
+  {:io? true} 
   (let [user (data/get-user-by-id user-id)
         username (:username user)
-        song (data/update-song song-id song-name artist)]
+        song (data/update-song song-id song-name artist)
+        selected-suggesteds-songs (get-suggested-songs-for-user user-id)]
     (log/info username "editing song [" song-id "] with new name : [" song-name "] and new artist : [" artist "]")
-    (music-detail-view username song (is-song-user-favourite? song-id user))))
+    (music-detail-view username song (is-song-user-favourite? song-id user) selected-suggesteds-songs)))
 
 (defn upload-page [username]
   (music-upload-view username))
 
 (defn upload-file [username file]
+  {:io? true}
   (try+
    (let [file-map (first file)
          file-name (file-map :filename)
@@ -181,11 +227,13 @@
 
 
 (defn add-tag [username song-id tag-name]
+  {:io? true}
   (data/add-song-tag song-id tag-name)
   (log/info username "has tagged" song-id "with" tag-name)
   {:status 204})
 
 (defn delete-tag [username song-id tag-name]
+  {:io? true}
   (data/del-song-tag song-id tag-name)
   (log/info username "has deleted from" song-id "tag" tag-name)
   {:status 204})
@@ -208,6 +256,7 @@
   (str "http://www.youtube.com/embed/" video-id))
 
 (defn add-related-link [username song-id link]
+  {:io? true}
   (if (is-youtube-link? link)
     (let [video-id (get-youtube-video-id link)
           youtube-embeded-link (gen-youtube-embeded-link video-id)]
@@ -217,6 +266,7 @@
     {:status 400}))
 
 (defn del-related-link [username song-id link]
+  {:io? true}
   (data/del-song-external-video-link song-id link)
   (log/info username "has deleted" link "from the song" song-id)
   {:status 204})
