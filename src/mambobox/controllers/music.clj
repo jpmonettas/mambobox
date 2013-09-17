@@ -5,6 +5,8 @@
         [ring.util.response]
         [mambobox.utils :only [defnlog dlet]]
         [slingshot.slingshot :only [throw+ try+]]
+        [clj-time.core :only  [weeks ago after?]]
+        [clj-time.coerce :only  [from-date]]
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
@@ -98,23 +100,34 @@
                song))))
            songs))
 
-(defn make-scored-songs-col [all-songs user-favourites-ids all-favourites-ids]
+(defn newers-score-songs [songs newer-bottom-limit]
+  (map (fn [song]
+         (let [song-date-created (from-date (:date-created song))]
+           (if (and newer-bottom-limit (after? song-date-created newer-bottom-limit))
+               (assoc song :score (+ (:score song) 50))
+             song)))
+       songs))
+           
+
+(defn make-scored-songs-col [all-songs user-favourites-ids all-favourites-ids newer-bottom-limit]
     (->
      all-songs
      (zero-score-songs)
      (favourites-score-songs all-favourites-ids 100)
      (visits-score-songs)
+     (newers-score-songs newer-bottom-limit)
      (zero-score-user-fav-songs user-favourites-ids)))
 
 
-(defn sort-songs-by-visits [songs]
-  (sort-by :visits > songs))
+(defn sort-songs-by-score [songs]
+  (sort-by :score > songs))
 
 (defn make-top-suggested-songs-col [scored-songs]
-  (-> 
-   scored-songs 
-   (sort-songs-by-visits)
-   (utils/sub-list 0 config/top-scored-as-suggested-size)))
+  (let [top-suggested-size (int (/ (* (count scored-songs) config/suggeste-scored-percentage) 100))]
+    (-> 
+     scored-songs 
+     (sort-songs-by-score)
+     (utils/sub-list 0 top-suggested-size))))
    
 (defn get-suggested-songs-for-user [user-id]
   {:io? true}
@@ -122,13 +135,31 @@
         user (data/get-user-by-id user-id)
         user-favs-ids (:favourites user)
         all-users (data/get-all-users)
-        all-favourites-ids (get-all-favourites all-users)]
+        all-favourites-ids (get-all-favourites all-users)
+        newer-bottom-limit (-> 3 weeks ago)]
     (->
-     (make-scored-songs-col all-songs user-favs-ids all-favourites-ids)
+     (make-scored-songs-col all-songs user-favs-ids all-favourites-ids newer-bottom-limit)
      (make-top-suggested-songs-col)
      (utils/make-random-subset config/suggesteds-size))))
         
   
+
+(defn pprint-songs-scorecard []
+  (let [all-songs (data/get-all-songs)
+        all-users (data/get-all-users)
+        all-favourites-ids (get-all-favourites all-users)
+        scored-songs (make-scored-songs-col all-songs nil all-favourites-ids (-> 3 weeks ago))
+        sorted-scored-songs (sort-songs-by-score scored-songs)]
+    (doseq [song sorted-scored-songs]
+        (let [name (:name song)
+                artist (:artist song)
+                date-created (:date-created song)
+                visits (:visits song)
+                score (:score song)]
+            (log/debug (int score) name "(" artist ") v:" visits "uploaded:" date-created)))
+        (log/debug "Suggesting the first :" (int (/ (* (count scored-songs) config/suggeste-scored-percentage) 100)))))
+
+        
 (defn surprise-me [user-id]
   {:io? true}
   (let [user (data/get-user-by-id user-id)

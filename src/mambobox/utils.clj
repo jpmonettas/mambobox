@@ -62,6 +62,8 @@
           response)
     (handler request))))
 
+        
+
 (defn wrap-debug [handler]
   (fn [request]
       (let [response (handler request)]

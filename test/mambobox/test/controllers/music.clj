@@ -1,6 +1,9 @@
 (ns mambobox.test.controllers.music
   (:use clojure.test
-        mambobox.controllers.music))
+        mambobox.controllers.music
+        [clj-time.core :only [date-time]]
+        [clj-time.coerce :only [to-date]])
+  (:require [clojure.tools.logging :as log]))
 
 (deftest test-is-youtube-link?
   (is (is-youtube-link? "http://www.youtube.com/watch?v=HkycF0hUtTQ"))
@@ -58,20 +61,26 @@
 
 (deftest test-visits-score-songs)
 
+(deftest test-newers-score-songs)
+
 (deftest test-make-scored-songs-col
-  (let [songs [{:_id "521e4d5be4b030cc0edddd99" :name "1" :visits 10}
-               {:_id "521d10e7e4b030cc0edddd94" :name "2" :visits 100}
-               {:_id "521bcc75e4b030cc0edddd8c" :name "3" :visits 20}
-               {:_id "521bcc05e4b030cc0edddd88" :name "4" :visits 5}
-               {:_id "5226a0a4e4b023c2ee81714a" :name "5" :visits 2}]
-        scored-songs1 (into [] (make-scored-songs-col songs nil nil))
-        scored-songs2 (into [] (make-scored-songs-col songs ["5226a0a4e4b023c2ee81714a"] nil))
-        scored-songs3 (into [] (make-scored-songs-col songs nil ["521bcc05e4b030cc0edddd88"]))
-        scored-songs4 (into [] (make-scored-songs-col songs ["5226a0a4e4b023c2ee81714a"] ["521bcc05e4b030cc0edddd88" "521e4d5be4b030cc0edddd99" "5226a0a4e4b023c2ee81714a"]))]
+  (let [songs [{:_id "521e4d5be4b030cc0edddd99" :name "1" :visits 10 :date-created (to-date (date-time 2013 10 20))}
+               {:_id "521d10e7e4b030cc0edddd94" :name "2" :visits 100 :date-created (to-date (date-time 2013 10 20))}
+               {:_id "521bcc75e4b030cc0edddd8c" :name "3" :visits 20 :date-created (to-date (date-time 2013 9 20))}
+               {:_id "521bcc05e4b030cc0edddd88" :name "4" :visits 5 :date-created (to-date (date-time 2013 8 20))}
+               {:_id "5226a0a4e4b023c2ee81714a" :name "5" :visits 2 :date-created (to-date (date-time 2013 8 25))}]
+        scored-songs1 (into [] (make-scored-songs-col songs nil nil nil))
+        scored-songs2 (into [] (make-scored-songs-col songs ["5226a0a4e4b023c2ee81714a"] nil nil))
+        scored-songs3 (into [] (make-scored-songs-col songs nil ["521bcc05e4b030cc0edddd88"] nil))
+        scored-songs4 (into [] (make-scored-songs-col songs 
+                                                      ["5226a0a4e4b023c2ee81714a"]
+                                                      ["521bcc05e4b030cc0edddd88" "521e4d5be4b030cc0edddd99" "5226a0a4e4b023c2ee81714a"]
+                                                      (date-time 2013 9 1)))]
     (is (every? identity (map #(:score %) scored-songs1)) "Check all have scores")
     (is (= (:score (get scored-songs1 0)) 10) "Check only visits")  
     (is (= (:score (get scored-songs1 1)) 100) "Check only visits 2")  
     (is (= (:score (get scored-songs2 4)) 0) "Zero score user fav")
     (is (= (:score (get scored-songs3 3)) 105) "Points per other user fav")
-    (is (= (:score (get scored-songs4 0)) 110) "Combined")
+    (is (= (:score (get scored-songs4 0)) 160) "Combined")
     (is (= (:score (get scored-songs4 4)) 0) "Combined 2")))
+

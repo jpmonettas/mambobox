@@ -7,7 +7,7 @@
 
 (def result-page-size 10)
 
-(def top-scored-as-suggested-size 30)
+(def suggeste-scored-percentage 40)
 (def suggesteds-size 3)
 
 (let [environment (trim (lower-case (System/getenv "MAMBOBOX_ENV")))]
