@@ -1,0 +1,53 @@
+* Features
+
+** Android client
+
+** API
+
+*** Songs
+**** Upload mp3(wma?) file 
+**** Automatic song name and artist from ID3info
+**** Search for songs by name, artist, and tag
+**** Add/Remove a song to user favourites
+**** Retrieve user favourites
+**** Track songs listenings w/timestamps
+**** Edit song name and artist
+     Admins can edit every song, and users only theirs
+**** Add/Remove tags to a song
+**** Retrieve untagged songs
+
+*** Users
+**** Create a user with nickname
+**** Promote/Demote a user as admin
+
+* TODOs
+** Android client
+** API
+*** TODO Create api skeleton with metosin/compojure-api
+*** TODO Create a service for uploading an mp3 file
+    POST /songs/
+*** TODO Join file upload with auto file info recognition
+*** TODO Create a service for search by query and tag
+    GET /songs?q=&tag=
+*** TODO Create a service for add song to user favourites
+    POST /users/:user-id/favourites/:song-id
+*** TODO Create a service for delete a song from user favourites
+    DELETE /users/:user-id/favourites/:song-id
+*** TODO Create a service for retrieving user favourites
+    GET /users/:user-id/favourites/
+*** TODO Create a service to increment a song listening
+    GET /songs/:song-id/listened
+*** TODO Create a service to edit song info
+    PUT /songs/:song-id (json with new name or/and artist)
+*** TODO Create a service to add tag to a song
+    POST /songs/:song-id/tags/:tag-id
+*** TODO Create a service to remove tag from a song
+    DELETE /songs/:song-id/tags/:tag-id
+*** TODO Create a service to retrieve untagged songs
+    GET /songs/untagged
+*** TODO Create a service to add a user
+    POST /users/:user-id/ (json with full name and profile picture from facebook/gmail)
+*** TODO Creata a service to promote a user to admin
+    PUT /users/:user-id/promote
+*** TODO Create a service to demote a user from admin
+    PUT /users/:user-id/demote
