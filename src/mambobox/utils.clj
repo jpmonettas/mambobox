@@ -4,7 +4,7 @@
         [ring.adapter.jetty]
         [ring.util.response]
         [compojure.core]
-        [clojure.tools.logging :as log]
+        [taoensso.timbre :as log]
         [clojure.java.io :as io]
         [digest]
         [clj-time.format :as ctf]

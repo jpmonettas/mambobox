@@ -10,10 +10,9 @@
         [clojure.string :only [lower-case]])
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
-            [clojure.tools.logging :as log]
+            [taoensso.timbre :as log]
             [fuzzy-string.core :as fuzz-str]
             [clojure.data.json :as json]
-            [mambobox.config :as config]
             [clojure.set :as set]))
 
 
@@ -122,68 +121,70 @@
 (defn sort-songs-by-score [songs]
   (sort-by :score > songs))
 
-(defn make-top-suggested-songs-col [scored-songs]
-  (let [top-suggested-size (int (/ (* (count scored-songs) config/suggeste-scored-percentage) 100))]
+(defn make-top-suggested-songs-col [scored-songs suggeste-scored-percentage]
+  (let [top-suggested-size (int (/ (* (count scored-songs) suggeste-scored-percentage) 100))]
     (-> 
      scored-songs 
      (sort-songs-by-score)
      (utils/sub-list 0 top-suggested-size))))
    
-(defn get-suggested-songs-for-user [user-id]
+(defn get-suggested-songs-for-user [db-cmp user-id suggeste-scored-percentage suggesteds-size]
   {:io? true}
-  (let [all-songs (data/get-all-songs)
-        user (data/get-user-by-id user-id)
+  (let [all-songs (data/get-all-songs db-cmp)
+        user (data/get-user-by-id db-cmp user-id)
         user-favs-ids (:favourites user)
-        all-users (data/get-all-users)
+        all-users (data/get-all-users db-cmp)
         all-favourites-ids (get-all-favourites all-users)
         newer-bottom-limit (-> 3 weeks ago)]
     (->
      (make-scored-songs-col all-songs user-favs-ids all-favourites-ids newer-bottom-limit)
-     (make-top-suggested-songs-col)
-     (utils/make-random-subset config/suggesteds-size))))
+     (make-top-suggested-songs-col suggeste-scored-percentage)
+     (utils/make-random-subset suggesteds-size))))
         
   
 
-(defn pprint-songs-scorecard []
-  (let [all-songs (data/get-all-songs)
-        all-users (data/get-all-users)
-        all-favourites-ids (get-all-favourites all-users)
-        scored-songs (make-scored-songs-col all-songs nil all-favourites-ids (-> 3 weeks ago))
-        sorted-scored-songs (sort-songs-by-score scored-songs)]
-    (doseq [song sorted-scored-songs]
-        (let [name (:name song)
-                artist (:artist song)
-                date-created (:date-created song)
-                visits (:visits song)
-                score (:score song)]
-            (log/debug (int score) name "(" artist ") v:" visits "uploaded:" date-created)))
-        (log/debug "Suggesting the first :" (int (/ (* (count scored-songs) config/suggeste-scored-percentage) 100)))))
+;; (defn pprint-songs-scorecard [db-cmp]
+;;   (let [all-songs (data/get-all-songs db-cmp)
+;;         all-users (data/get-all-users db-cmp)
+;;         all-favourites-ids (get-all-favourites all-users)
+;;         scored-songs (make-scored-songs-col all-songs nil all-favourites-ids (-> 3 weeks ago))
+;;         sorted-scored-songs (sort-songs-by-score scored-songs)]
+;;     (doseq [song sorted-scored-songs]
+;;         (let [name (:name song)
+;;                 artist (:artist song)
+;;                 date-created (:date-created song)
+;;                 visits (:visits song)
+;;                 score (:score song)]
+;;             (log/debug (int score) name "(" artist ") v:" visits "uploaded:" date-created)))
+;;         (log/debug "Suggesting the first :" (int (/ (* (count scored-songs) config/suggeste-scored-percentage) 100)))))
 
         
-(defn surprise-me [user-id]
+(defn surprise-me [db-cmp system-config user-id]
   {:io? true}
-  (let [user (data/get-user-by-id user-id)
-        surprise-me-vector (into [] (get-suggested-songs-for-user user-id))
+  (let [user (data/get-user-by-id db-cmp user-id)
+        suggeste-scored-percentage (:suggested-score-percentage system-config)
+        suggesteds-size (:suggesteds-size system-config)
+        surprise-me-vector (into [] (get-suggested-songs-for-user user-id suggeste-scored-percentage suggesteds-size))
         random-song-index (int (rand (count surprise-me-vector)))
         song (get surprise-me-vector random-song-index)]
     (log/info "Song" (:name song) "choosed for" (:usename user))
     (redirect (str "/music/" (:_id song)))))
                 
 
-(defn music-search [user-id q tag collection-filter cur-page]
+(defn music-search [db-cmp system-config user-id q tag collection-filter cur-page]
   {:io? true}
-  (let [user (data/get-user-by-id user-id)
+  (let [user (data/get-user-by-id db-cmp user-id)
         username (:username user)
         user-favourite-song-ids (:favourites user)
         collection-filter (if collection-filter collection-filter "all")
         cur-page (if cur-page (utils/parse-int cur-page) 1)
-        base-collection (cond (= collection-filter "all") (data/get-all-songs)
+        base-collection (cond (= collection-filter "all") (data/get-all-songs db-cmp)
                               (= collection-filter "favourites") (when-not (empty? user-favourite-song-ids)
-                                                                   (data/get-all-songs-from-ids user-favourite-song-ids)))
+                                                                   (data/get-all-songs-from-ids db-cmp user-favourite-song-ids)))
         search-result (search-music q tag base-collection)
         tags-freaquency-map (get-tags-freaquency-map search-result)
-        num-pages (get-cant-pages search-result  config/result-page-size)
-        cur-page-songs (get-collection-page search-result cur-page config/result-page-size)]
+        num-pages (get-cant-pages search-result (:result-page-size system-config))
+        cur-page-songs (get-collection-page search-result cur-page (:result-page-size system-config))]
     (log/info username "searching for [" q "] with tag [" tag "] and page" cur-page "retrieved" (count search-result) "songs")
     (music-search-view username
                        cur-page-songs
@@ -200,22 +201,22 @@
         (some #{(.toString song-id)} favourites)))
 
 
-(defn music-id [user-id song-id]
+(defn music-id [db-cmp user-id song-id]
   {:io? true}
-  (let [song (data/get-song-by-id song-id)
-        user (data/get-user-by-id user-id)
+  (let [song (data/get-song-by-id db-cmp song-id)
+        user (data/get-user-by-id db-cmp user-id)
         username (:username user)
         selected-suggesteds-songs (get-suggested-songs-for-user user-id)]
-    (data/track-song-access song-id)
-    (data/add-song-to-visited user-id song-id)
+    (data/track-song-access db-cmp song-id)
+    (data/add-song-to-visited db-cmp user-id song-id)
     (log/info username "seeing" (:name song) "[" song-id "]")
     (music-detail-view username song (is-song-user-favourite? song-id user) selected-suggesteds-songs)))
 
-(defn edit-music [user-id song-id song-name artist]
+(defn edit-music [db-cmp user-id song-id song-name artist]
   {:io? true} 
-  (let [user (data/get-user-by-id user-id)
+  (let [user (data/get-user-by-id db-cmp user-id)
         username (:username user)
-        song (data/update-song song-id song-name artist)
+        song (data/update-song db-cmp song-id song-name artist)
         selected-suggesteds-songs (get-suggested-songs-for-user user-id)]
     (log/info username "editing song [" song-id "] with new name : [" song-name "] and new artist : [" artist "]")
     (music-detail-view username song (is-song-user-favourite? song-id user) selected-suggesteds-songs)))
@@ -223,7 +224,7 @@
 (defn upload-page [username]
   (music-upload-view username))
 
-(defn upload-file [username file]
+(defn upload-file [db-cmp system-config username file]
   {:io? true}
   (try+
    (let [file-map (first file)
@@ -240,7 +241,7 @@
                       (first (metadata-tags :artist)))
          song-name (if (not (empty? title-tag)) title-tag file-name)
          song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")
-         existing-song-for-sum (data/get-song-by-file-name generated-file-name)]
+         existing-song-for-sum (data/get-song-by-file-name db-cmp generated-file-name)]
      (if existing-song-for-sum
        (do  
          (log/warn username "has uploaded a file:[" file-name "] of size [" size "] that is already on mambobox so skipping.")
@@ -249,8 +250,9 @@
                   :filename file-name
                   :size size}))
        (do 
-         (utils/save-file-to-disk file-map generated-file-name mambobox.config/music-dir)
-         (let [created-song (data/save-song song-name
+         (utils/save-file-to-disk file-map generated-file-name (:music-dir system-config))
+         (let [created-song (data/save-song db-cmp
+                                            song-name
                                             song-artist
                                             file-name
                                             generated-file-name username)] 
@@ -267,15 +269,15 @@
 
 
 
-(defn add-tag [username song-id tag-name]
+(defn add-tag [db-cmp username song-id tag-name]
   {:io? true}
-  (data/add-song-tag song-id tag-name)
+  (data/add-song-tag db-cmp song-id tag-name)
   (log/info username "has tagged" song-id "with" tag-name)
   {:status 204})
 
-(defn delete-tag [username song-id tag-name]
+(defn delete-tag [db-cmp username song-id tag-name]
   {:io? true}
-  (data/del-song-tag song-id tag-name)
+  (data/del-song-tag db-cmp song-id tag-name)
   (log/info username "has deleted from" song-id "tag" tag-name)
   {:status 204})
 
@@ -296,18 +298,18 @@
 (defn gen-youtube-embeded-link [video-id]
   (str "http://www.youtube.com/embed/" video-id))
 
-(defn add-related-link [username song-id link]
+(defn add-related-link [db-cmp username song-id link]
   {:io? true}
   (if (is-youtube-link? link)
     (let [video-id (get-youtube-video-id link)
           youtube-embeded-link (gen-youtube-embeded-link video-id)]
-      (data/add-song-external-video-link song-id youtube-embeded-link)
+      (data/add-song-external-video-link db-cmp song-id youtube-embeded-link)
       (log/info username "has added a related youtube video(" link ") for song" song-id)
       (redirect (str "/music/" song-id)))
     {:status 400}))
 
-(defn del-related-link [username song-id link]
+(defn del-related-link [db-cmp username song-id link]
   {:io? true}
-  (data/del-song-external-video-link song-id link)
+  (data/del-song-external-video-link db-cmp song-id link)
   (log/info username "has deleted" link "from the song" song-id)
   {:status 204})

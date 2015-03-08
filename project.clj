@@ -1,35 +1,70 @@
 (defproject mambobox "1.2.1-SNAPSHOT"
   :description "Mambobox"
   :url "http://www.mambobox.com.uy"
-  :dependencies [[org.clojure/clojure "1.5.1"]      
+  :dependencies [[org.clojure/clojure "1.5.1"]
+
+                 ;; Routing
+                 [compojure "1.2.0"]
+                 
+                 ;; Website authentication/authorization
                  [com.cemerick/friend "0.1.5"]
-                 [compojure "1.1.5"]
+                 
+                 ;; Html generation
                  [hiccup "1.0.4"]
-                 [com.novemberain/monger "1.5.0"]
-                 [org.clojure/tools.logging "0.2.6"]
-                 [log4j/log4j "1.2.16"]
+
+                 ;; DB
+                 [com.novemberain/monger "2.0.0"]
+
+                 ;; Logging
+                 [com.taoensso/timbre "3.3.1"]
+                 [javax.mail/mail "1.4.7"]
+                 [com.draines/postal "1.9.2"] ;; by email
+
+                 ;; For managing staff that we need to initialize and have a lifecicle
+                 [com.stuartsierra/component "0.2.2"]
+
+                 
+                 ;; Explring ID3 info
                  [org/jaudiotagger "2.0.3"]
+
+                 ;; Fuzzy string matching for the search
                  [fuzzy-string "0.1.0-SNAPSHOT"]
+
+                 ;; API
                  [org.clojure/data.json "0.2.2"]
+
+                 ;; For naming files with it's checksum
                  [digest "1.3.0"]
+
+                 ;; Exception handling
                  [slingshot "0.10.3"]
+
+                 ;; Time
                  [clj-time "0.6.0"]
-                 [ring/ring-jetty-adapter "1.2.0"]
-                 [clj-logging-config "1.9.10"]
-                 [org.clojure/tools.nrepl "0.2.3"]
+
+                 ;; Web server
+                 [ring "1.3.1"]
+                 [ring/ring-json "0.3.1"]
+                 [ring/ring-codec "1.0.0"]
+
+
+                 ;; To embeed a nrepl server in the app
+                 [org.clojure/tools.nrepl "0.2.5"]
+                 [cider/cider-nrepl "0.8.1"]
+                 
                  [clj-stacktrace "0.2.5"]]
-  :main mambobox.handler
+  :main mambobox.main
   :plugins [[lein-ring "0.8.6"]]
-  :ring {:handler mambobox.handler/app
-         :open-browser? false}
-  :profiles {:production 
-             {:ring
-              {:stacktraces? false,
-               :auto-reload? false}}
-             :dev 
-             {:ring
-              {:auto-reload? true
-               :auto-refresh true
-               :stacktraces? false}
-              :dependencies [[ring-mock "0.1.5"]]}})
+  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]
+                                  [javax.servlet/servlet-api "2.5"]                 
+
+                                  ;; Debugging
+                                  [org.clojure/tools.trace "0.7.8"]
+
+                                  ;;Testing
+                                  [midje "1.6.3"]
+                                  [ring-mock "0.1.5"]]
+                   :plugins [[lein-midje "3.1.1"]]}
+             :prod {:global-vars {*assert* false}}
+             :uberjar {:aot :all}})
 
