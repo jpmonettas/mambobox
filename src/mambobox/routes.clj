@@ -151,7 +151,6 @@
   ;; Resources
   (route/resources "/"))
 
-(defroutes api-routes
-  (GET "/api/test" [] "from API"))
+
 
 

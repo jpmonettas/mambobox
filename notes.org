@@ -23,12 +23,12 @@
 * TODOs
 ** Android client
 ** API
-*** TODO Add components system, with db and web server components
-*** TODO Create api skeleton with metosin/compojure-api
+*** DONE Add components system, with db and web server components
+*** DONE Create api skeleton with metosin/compojure-api
 *** TODO Create a service for uploading an mp3 file
     POST /songs/
 *** TODO Join file upload with auto file info recognition
-*** TODO Create a service for search by query and tag
+*** DONE Create a service for search by query and tag
     GET /songs?q=&tag=
 *** TODO Create a service for add song to user favourites
     POST /users/:user-id/favourites/:song-id

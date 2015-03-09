@@ -1,5 +1,6 @@
 (ns mambobox.components.web-server
   (:require [mambobox.routes :as r]
+            [mambobox.api-routes :as api-r]
             [com.stuartsierra.component :as component]
             [compojure.core :as cc]
             [compojure.route :as cr]
@@ -48,6 +49,9 @@
 
       (cr/resources "/")
       (cr/files "/files/" (:music-dir system-config))
+
+      ;; Api routes
+      api-r/api-routes
       
       ;; Site routes
       r/app-routes

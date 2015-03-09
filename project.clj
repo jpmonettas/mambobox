@@ -1,27 +1,31 @@
 (defproject mambobox "1.2.1-SNAPSHOT"
   :description "Mambobox"
   :url "http://www.mambobox.com.uy"
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
 
                  ;; Routing
-                 [compojure "1.2.0"]
+                 ;;[compojure "1.3.2"]
                  
                  ;; Website authentication/authorization
-                 [com.cemerick/friend "0.1.5"]
+                 [com.cemerick/friend "0.2.1"]
+
+                 [org.clojure/core.memoize "0.5.6"]
+
+                 [org.clojure/core.cache "0.6.4"]
                  
                  ;; Html generation
-                 [hiccup "1.0.4"]
+                 [hiccup "1.0.5"]
 
                  ;; DB
-                 [com.novemberain/monger "2.0.0"]
+                 [com.novemberain/monger "2.1.0"]
 
                  ;; Logging
-                 [com.taoensso/timbre "3.3.1"]
+                 [com.taoensso/timbre "3.4.0"]
                  [javax.mail/mail "1.4.7"]
-                 [com.draines/postal "1.9.2"] ;; by email
+                 [com.draines/postal "1.11.3"] ;; by email
 
                  ;; For managing staff that we need to initialize and have a lifecicle
-                 [com.stuartsierra/component "0.2.2"]
+                 [com.stuartsierra/component "0.2.3"]
 
                  
                  ;; Explring ID3 info
@@ -43,7 +47,7 @@
                  [clj-time "0.6.0"]
 
                  ;; Web server
-                 [ring "1.3.1"]
+                 [ring "1.3.2"]
                  [ring/ring-json "0.3.1"]
                  [ring/ring-codec "1.0.0"]
 
@@ -51,6 +55,13 @@
                  ;; To embeed a nrepl server in the app
                  [org.clojure/tools.nrepl "0.2.5"]
                  [cider/cider-nrepl "0.8.1"]
+
+                 ;; For api with swagger
+                 [metosin/compojure-api "0.18.0"]
+                 [metosin/ring-swagger "0.18.1"]
+
+                 [metosin/ring-http-response "0.6.0"]
+                 [metosin/ring-swagger-ui "2.0.24"]
                  
                  [clj-stacktrace "0.2.5"]]
   :main mambobox.main
