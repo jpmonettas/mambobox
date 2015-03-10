@@ -1,7 +1,6 @@
 (ns mambobox.api-routes
   (:require [ring.util.http-response :refer :all]
-            [mambobox.controllers.music :as mc]
-            [mambobox.data-access :as data]
+            [mambobox.services.songs :as ss]
             [compojure.api.sweet :refer :all]
             [taoensso.timbre :as l]
             [schema.core :as s]))
@@ -11,7 +10,7 @@
                    :artist String
                    :name String
                    :tags [String]
-                   :visits Number
+                   :visits Integer
                    :uploader-username String})
 
 (defn song->json-song [s]
@@ -32,7 +31,7 @@
                   :query-params [{q :- String ""} {tag :- String ""}]
                   :summary "Search songs by query and tag"
                   (let [db-cmp (:db-cmp req)
-                        all-songs (data/get-all-songs db-cmp)]
+                        all-songs (ss/get-all-songs db-cmp)]
                     (l/debug "Searchig for " q " and " tag)
-                    (ok (->> (mc/search-music q tag all-songs)
+                    (ok (->> (ss/search-music q tag all-songs)
                            (map song->json-song))))))))

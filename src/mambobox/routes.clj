@@ -86,9 +86,7 @@
                                                                                       musicid 
                                                                                       link)))
 
-  (GET "/upload" [:as req] (let [{:keys [db-cmp]} req]
-                             (mc/upload-page db-cmp
-                                             (current-username req))))
+  (GET "/upload" [:as req] (mc/upload-page (current-username req)))
 
   (POST "/upload" [files :as req] (let [{:keys [db-cmp system-config]} req]
                                     (mc/upload-file db-cmp

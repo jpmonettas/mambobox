@@ -2,6 +2,24 @@
 
 ** Android client
 
+*** Every user
+
+**** Search music by name/artist/tag (autocomplete)
+
+**** Add songs from search result to queue (client queue)
+
+**** Basic current song controls (play, pause, ff, etc)
+
+**** Select song(s) from phone to upload
+
+**** Edit song name/artist/tag for user uploaded songs
+
+**** Hot songs
+
+**** Recently added
+
+*** Admin only
+
 ** API
 
 *** Songs
@@ -25,6 +43,7 @@
 ** API
 *** DONE Add components system, with db and web server components
 *** DONE Create api skeleton with metosin/compojure-api
+*** DONE Refactor to create a services layer
 *** TODO Create a service for uploading an mp3 file
     POST /songs/
 *** TODO Join file upload with auto file info recognition
