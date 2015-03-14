@@ -5,7 +5,8 @@
             [fuzzy-string.core :as fuzz-str]
             [clojure.string :refer [lower-case]]
             [clj-time.core :refer [weeks ago after?]]
-            [clj-time.coerce :refer [from-date]]))
+            [clj-time.coerce :refer [from-date]]
+            [slingshot.slingshot :refer [throw+ try+]]))
 
 (defn accept-song-for-query? [song qstring]
   (let [song-name (lower-case (get song :name))
@@ -172,6 +173,52 @@
 
 (defn del-song-external-video-link [db-cmp song-id link]
   (data/del-song-external-video-link db-cmp song-id link))
+
+(defn upload-file [db-cmp system-config username file-map]
+  {:io? true}
+  (l/debug "Uploading a file for user : " username)
+  (l/debug "File : " file-map)
+  (try+
+   (let [file-name (file-map :filename)
+         temp-file (file-map :tempfile)
+         size (file-map :size)
+         generated-file-name (utils/gen-uuid temp-file) ;; md5sum
+         metadata (utils/get-metadata temp-file)
+         metadata-tags (when metadata
+                         (metadata :tags))
+         title-tag (when metadata-tags
+                     (first (metadata-tags :title)))
+         artist-tag (when metadata-tags
+                      (first (metadata-tags :artist)))
+         song-name (if (not (empty? title-tag)) title-tag file-name)
+         song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")
+         existing-song-for-sum (get-song-by-file-name db-cmp generated-file-name)]
+     (if existing-song-for-sum
+       (do  
+         (l/warn username "has uploaded a file:[" file-name "] of size [" size "] that is already on mambobox so skipping.")
+         (throw+ {:type :upload-fail
+                  :message (str "El archivo ya existe con nombre de tema : " (get existing-song-for-sum :name))
+                  :filename file-name
+                  :size size}))
+       (do 
+         (utils/save-file-to-disk file-map generated-file-name (:music-dir system-config))
+         (let [created-song (save-song db-cmp
+                                       song-name
+                                       song-artist
+                                       file-name
+                                       generated-file-name username)] 
+           (l/info username "uploaded a file:[" file-name "] of size [" size "]")
+           (l/info "FS generated name : " generated-file-name)
+           (when (not metadata-tags) (l/info "We couldn't find any file ID3 tag"))
+           {:files [{:name file-name
+                     :size size
+                     :url (str "/music/" (get created-song :_id))}]}))))
+   (catch [:type :upload-fail] {:keys [message filename size]}       
+     {:files [{:name filename
+               :size size
+               :error message}]})))
+
+
 
 ;; (defn pprint-songs-scorecard [db-cmp]
 ;;   (let [all-songs (data/get-all-songs db-cmp)

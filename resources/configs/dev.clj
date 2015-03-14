@@ -3,7 +3,7 @@
 
  :db-name "mambobox"
  
- :music-dir "./music-files"
+ :music-dir "./music-files/"
  :suggested-score-percentage 40
  :result-page-size 10
  :suggesteds-size 3

@@ -76,48 +76,7 @@
 
 (defn upload-file [db-cmp system-config username file]
   {:io? true}
-  (try+
-   (let [file-map (first file)
-         file-name (file-map :filename)
-         temp-file (file-map :tempfile)
-         size (file-map :size)
-         generated-file-name (utils/gen-uuid temp-file) ;; md5sum
-         metadata (utils/get-metadata temp-file)
-         metadata-tags (when metadata
-                         (metadata :tags))
-         title-tag (when metadata-tags
-                     (first (metadata-tags :title)))
-         artist-tag (when metadata-tags
-                      (first (metadata-tags :artist)))
-         song-name (if (not (empty? title-tag)) title-tag file-name)
-         song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")
-         existing-song-for-sum (ss/get-song-by-file-name db-cmp generated-file-name)]
-     (if existing-song-for-sum
-       (do  
-         (log/warn username "has uploaded a file:[" file-name "] of size [" size "] that is already on mambobox so skipping.")
-         (throw+ {:type :upload-fail
-                  :message (str "El archivo ya existe con nombre de tema : " (get existing-song-for-sum :name))
-                  :filename file-name
-                  :size size}))
-       (do 
-         (utils/save-file-to-disk file-map generated-file-name (:music-dir system-config))
-         (let [created-song (ss/save-song db-cmp
-                                          song-name
-                                          song-artist
-                                          file-name
-                                          generated-file-name username)] 
-           (log/info username "uploaded a file:[" file-name "] of size [" size "]")
-           (log/info "FS generated name : " generated-file-name)
-           (when (not metadata-tags) (log/info "We couldn't find any file ID3 tag"))
-           (json/write-str {:files [{:name file-name
-                                     :size size
-                                     :url (str "/music/" (get created-song :_id))}]})))))
-   (catch [:type :upload-fail] {:keys [message filename size]}       
-     (json/write-str {:files [{:name filename
-                               :size size
-                               :error message}]}))))
-
-
+  (json/write (ss/upload-file db-cmp system-config username file)))
 
 (defn add-tag [db-cmp username song-id tag-name]
   {:io? true}

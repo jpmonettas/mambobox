@@ -34,4 +34,14 @@
                         all-songs (ss/get-all-songs db-cmp)]
                     (l/debug "Searchig for " q " and " tag)
                     (ok (->> (ss/search-music q tag all-songs)
-                           (map song->json-song))))))))
+                           (map song->json-song)))))
+
+
+            (POST* "/" [file :as req]
+                   :return Song
+                   :summary "Upload an mp3 or wma song as multipart-form data under file key"
+                   (let [{:keys [db-cmp system-config]} req]
+                     (ss/upload-file db-cmp
+                                     system-config
+                                     "jpmonettas@gmail.com"
+                                     file))))))

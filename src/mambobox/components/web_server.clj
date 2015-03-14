@@ -43,6 +43,13 @@
   (fn [request]
     (handler (l/spy request))))
 
+(defn wrap-log-exception [handler]
+  (fn [request]
+    (try
+      (handler request)
+      (catch Exception e
+        (l/error e)))))
+
 
 (defn create-app-handler [system-config db-cmp]
   (-> (cc/routes
@@ -64,9 +71,9 @@
                             :workflows [(workflows/interactive-form)]})
 
       (cr/not-found "Not Found"))
-     (wrap-stacktrace)
      (wrap-components system-config db-cmp)
      (wrap-session)
+     (wrap-multipart-params)
      (wrap-keyword-params)
      (wrap-nested-params)
      (wrap-params)

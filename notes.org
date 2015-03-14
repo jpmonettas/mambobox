@@ -11,7 +11,8 @@
 **** Basic current song controls (play, pause, ff, etc)
 
 **** Select song(s) from phone to upload
-
+**** Add a song to favourites
+**** List favourites and remove from them
 **** Edit song name/artist/tag for user uploaded songs
 
 **** Hot songs
@@ -19,6 +20,12 @@
 **** Recently added
 
 *** Admin only
+
+**** Queue of untagged songs
+
+**** Tag a song
+
+**** Edit song name/artist
 
 ** API
 
@@ -44,11 +51,14 @@
 *** DONE Add components system, with db and web server components
 *** DONE Create api skeleton with metosin/compojure-api
 *** DONE Refactor to create a services layer
-*** TODO Create a service for uploading an mp3 file
+*** DONE Create a service for uploading an mp3 file
     POST /songs/
-*** TODO Join file upload with auto file info recognition
+*** DONE Join file upload with auto file info recognition
 *** DONE Create a service for search by query and tag
     GET /songs?q=&tag=
+*** TODO Add support for uploading wma files
+    For this we can maybe try wrapping ffmpeg and convert each wma file into mp3
+    Or should we accept both? and be able to play both on clients
 *** TODO Create a service for add song to user favourites
     POST /users/:user-id/favourites/:song-id
 *** TODO Create a service for delete a song from user favourites
@@ -71,3 +81,5 @@
     PUT /users/:user-id/promote
 *** TODO Create a service to demote a user from admin
     PUT /users/:user-id/demote
+*** TODO Create a service to login a user by facebook token
+*** TODO Create a service to login a user by google OTC
