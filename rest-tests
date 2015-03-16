@@ -7,4 +7,8 @@ GET http://localhost:8000/api/songs?tag=afro&api_key=:api-key
 # Adding songs to user favourites
 POST http://localhost:8000/api/users/my-user/favourites/521819a1e4b095b1de16aea5?api_key=:api-key
 
+# Retrieving user favourites songs
+GET http://localhost:8000/api/users/my-user/favourites?api_key=:api-key
 
+# Deleting songs from user favourites
+DELETE http://localhost:8000/api/users/my-user/favourites/521819a1e4b095b1de16aea5?api_key=:api-key

@@ -55,7 +55,7 @@
                   (let [db-cmp (:db-cmp req)
                         all-songs (ss/get-all-songs db-cmp)]
                     (l/debug "Searchig for " q " and " tag)
-                    (ok (->> (try (ss/search-music q tag all-songs) (catch Exception e (l/error e)))
+                    (ok (->> (ss/search-music q tag all-songs) 
                            (map song->json-song)))))
 
 
@@ -77,6 +77,22 @@
                    :auth current-user
                    :path-params [song-id :- String]
                    (let [{:keys [db-cmp system-config]} req]
-                     (l/debug "Adding song " song-id " to user : " (:_id current-user))
                      (us/add-song-to-favourites db-cmp song-id (:_id current-user))
+                     (ok)))
+
+            (GET* "/my-user/favourites" [file :as req]
+                  :return [Song]
+                  :summary "Retrieve user favourites songs"
+                  :auth current-user
+                  (let [{:keys [db-cmp system-config]} req]
+                    (->> (us/get-user-favourites-songs db-cmp (:_id current-user))
+                       (map song->json-song)
+                       (ok))))
+
+            (DELETE* "/my-user/favourites/:song-id" [file :as req]
+                     :summary "Delete song from users favourites"
+                   :auth current-user
+                   :path-params [song-id :- String]
+                   (let [{:keys [db-cmp system-config]} req]
+                     (us/del-song-from-favourites db-cmp song-id (:_id current-user))
                      (ok))))))

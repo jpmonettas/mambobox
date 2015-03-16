@@ -8,7 +8,10 @@
 (defn get-all-favourites [users]
   (into #{} (reduce concat (map #(:favourites %) users))))
 
-
+(defn get-user-favourites-songs [db-cmp user-id]
+  (->> (data/get-user-by-id db-cmp user-id)
+     :favourites
+     (data/get-all-songs-from-ids db-cmp)))
    
 (defn get-suggested-songs-for-user [db-cmp user-id suggeste-scored-percentage suggesteds-size]
   {:io? true}

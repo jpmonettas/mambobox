@@ -58,10 +58,11 @@
     GET /songs?q=&tag=
 *** DONE Create a service for add song to user favourites
     POST /users/:user-id/favourites/:song-id
-*** TODO Create a service for delete a song from user favourites
-    DELETE /users/:user-id/favourites/:song-id
-*** TODO Create a service for retrieving user favourites
-    GET /users/:user-id/favourites/
+*** DONE Create a service for retrieving user favourites
+    GET /users/my-user/favourites
+*** DONE Create a service for delete a song from user favourites
+    DELETE /users/my-user/favourites/:song-id
+
 *** TODO Create a service to increment a song listening
     GET /songs/:song-id/listened
 *** TODO Create a service to edit song info
