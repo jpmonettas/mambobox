@@ -56,10 +56,7 @@
 *** DONE Join file upload with auto file info recognition
 *** DONE Create a service for search by query and tag
     GET /songs?q=&tag=
-*** TODO Add support for uploading wma files
-    For this we can maybe try wrapping ffmpeg and convert each wma file into mp3
-    Or should we accept both? and be able to play both on clients
-*** TODO Create a service for add song to user favourites
+*** DONE Create a service for add song to user favourites
     POST /users/:user-id/favourites/:song-id
 *** TODO Create a service for delete a song from user favourites
     DELETE /users/:user-id/favourites/:song-id
@@ -83,3 +80,6 @@
     PUT /users/:user-id/demote
 *** TODO Create a service to login a user by facebook token
 *** TODO Create a service to login a user by google OTC
+*** TODO Add support for uploading wma files
+    For this we can maybe try wrapping ffmpeg and convert each wma file into mp3
+    Or should we accept both? and be able to play both on clients

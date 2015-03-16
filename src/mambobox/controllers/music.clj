@@ -34,7 +34,7 @@
         base-collection (cond (= collection-filter "all") (ss/get-all-songs db-cmp)
                               (= collection-filter "favourites") (when-not (empty? user-favourite-song-ids)
                                                                    (ss/get-all-songs db-cmp user-favourite-song-ids)))
-        search-result (ss/search-music db-cmp q tag base-collection)
+        search-result (ss/search-music q tag base-collection)
         tags-freaquency-map (ss/get-tags-freaquency-map search-result)
         num-pages (ss/get-cant-pages search-result (:result-page-size system-config))
         cur-page-songs (ss/get-collection-page search-result cur-page (:result-page-size system-config))]

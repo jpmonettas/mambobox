@@ -31,7 +31,7 @@
   ([db-cmp ids]
    (data/get-all-songs-from-ids db-cmp ids)))
 
-(defn search-music [db-cmp q tag all-songs]
+(defn search-music [q tag all-songs]
   (let [processed-q (when q (lower-case q))
         query-filtered-songs (if (not (empty? q)) 
                                (filter (fn [song]
@@ -210,9 +210,7 @@
            (l/info username "uploaded a file:[" file-name "] of size [" size "]")
            (l/info "FS generated name : " generated-file-name)
            (when (not metadata-tags) (l/info "We couldn't find any file ID3 tag"))
-           {:files [{:name file-name
-                     :size size
-                     :url (str "/music/" (get created-song :_id))}]}))))
+           created-song))))
    (catch [:type :upload-fail] {:keys [message filename size]}       
      {:files [{:name filename
                :size size
