@@ -21,10 +21,11 @@
     (mq/sort (array-map :date-created -1))))
 
 (defn get-all-songs-from-ids [db-cmp ids-vector]
-  (utils/with-auto-object-id [ids-vector]
-    (mq/with-collection (db/get-db db-cmp) "songs"
-      (mq/find {:_id {$in ids-vector}})
-      (mq/sort (array-map :date-created -1)))))
+  (when (not-empty ids-vector)
+   (utils/with-auto-object-id [ids-vector]
+     (mq/with-collection (db/get-db db-cmp) "songs"
+       (mq/find {:_id {$in ids-vector}})
+       (mq/sort (array-map :date-created -1))))))
   
 
 (defn get-song-by-id [db-cmp song-id]
@@ -74,7 +75,7 @@
     (mc/update (db/get-db db-cmp) "songs" {:_id song-id} {$set {:name song-name}}))
   (when (not (empty? artist))
     (mc/update (db/get-db db-cmp) "songs" {:_id song-id} {$set {:artist artist}}))
-  (get-song-by-id song-id)))
+  (get-song-by-id db-cmp song-id)))
 
 
 ;; Song Video Links
@@ -106,17 +107,27 @@
 
 
 ;; Users
+(defn coerce-user [u]
+  (update-in u [:role] keyword))
 
-(defn add-user [db-cmp username plainpass first-name last-name]
-  (mc/insert (db/get-db db-cmp) "users" {:_id (ObjectId.) :first-name first-name :last-name last-name :username username :password (creds/hash-bcrypt plainpass)}))
+(defn add-user [db-cmp username plainpass first-name last-name role]
+  (-> (mc/insert-and-return (db/get-db db-cmp) "users" {:_id (ObjectId.)
+                                                       :first-name first-name
+                                                       :last-name last-name
+                                                       :username username
+                                                       :password (creds/hash-bcrypt plainpass)
+                                                       :role role})
+     coerce-user))
   
 (defn get-user-by-username [db-cmp username]
   (l/info "Submitted username " username)
-  (mc/find-one-as-map (db/get-db db-cmp) "users" {:username username}))
+  (-> (mc/find-one-as-map (db/get-db db-cmp) "users" {:username username})
+     coerce-user))
 
 (defn get-user-by-id [db-cmp user-id]
   (utils/with-auto-object-id [user-id]
-    (mc/find-one-as-map (db/get-db db-cmp) "users" {:_id user-id})))
+    (-> (mc/find-one-as-map (db/get-db db-cmp) "users" {:_id user-id})
+       coerce-user)))
 
 (defn create-invitation [db-cmp]
   (mc/insert (db/get-db db-cmp) "invitations" {:number (str (int (rand 10000)))}))
