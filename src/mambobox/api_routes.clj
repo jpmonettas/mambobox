@@ -28,7 +28,7 @@
 ;; For understanding this, grab one of the GET*,POST* that contains :auth and
 ;; macroexpand them
 (defmethod compojure.api.meta/restructure-param :auth
-  [_ [current-user-binding roles] {:keys [parameters lets body middlewares] :as acc}]
+  [_ [current-user-binding roles] {:keys [lets body] :as acc}]
   ""
   (-> acc
      (update-in [:lets] (fn [lets] (conj lets current-user-binding
@@ -39,7 +39,7 @@
      
      (assoc :body `((if (and ~current-user-binding
                            (~roles (:role ~current-user-binding)))
-                      (try (do ~@body) (catch Exception ex# (l/error ex#)))
+                      (do ~@body)
                       (ring.util.http-response/forbidden "Auth required"))))))
 
 (defapi api-routes
@@ -52,12 +52,14 @@
             (GET* "/" [:as req]
                   :return [Song]
                   :auth [current-user #{:normal-user :admin-user}]
-                  :query-params [{q :- String ""} {tag :- String ""}]
+                  :query-params [{q :- String ""} {tag :- String ""} {page :- Long 1}]
                   :summary "Search songs by query and tag"
                   (let [db-cmp (:db-cmp req)
+                        system-config (:system-config req)
                         all-songs (ss/get-all-songs db-cmp)]
                     (l/debug "Searchig for " q " and " tag)
-                    (ok (->> (ss/search-music q tag all-songs) 
+                    (ok (->> (ss/search-music q tag all-songs)
+                           (ss/get-collection-page page (:result-page-size system-config))
                            (map song->json-song)))))
 
 

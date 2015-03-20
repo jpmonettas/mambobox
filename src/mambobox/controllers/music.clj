@@ -37,7 +37,7 @@
         search-result (ss/search-music q tag base-collection)
         tags-freaquency-map (ss/get-tags-freaquency-map search-result)
         num-pages (ss/get-cant-pages search-result (:result-page-size system-config))
-        cur-page-songs (ss/get-collection-page search-result cur-page (:result-page-size system-config))]
+        cur-page-songs (ss/get-collection-page cur-page (:result-page-size system-config) search-result)]
     (log/info username "searching for [" q "] with tag [" tag "] and page" cur-page "retrieved" (count search-result) "songs")
     (music-search-view username
                        cur-page-songs

@@ -59,7 +59,7 @@
        (if (> (mod col-size page-size) 0) 1 0))))
 
 
-(defn get-collection-page [col cur-page page-size]
+(defn get-collection-page [cur-page page-size col]
   (let [col-size (count col)
         num-pages (get-cant-pages col page-size)
         first-song (inc (* (dec cur-page) page-size))

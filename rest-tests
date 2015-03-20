@@ -1,15 +1,14 @@
-#Normal user
-# :api-key = 111
+page#Normal user
+:api-key = 111
 
 # Admin user
-:api-key = 666
+#:api-key = 666
 
 # Searching songs
-
-GET http://localhost:8000/api/songs?tag=afro&api_key=:api-key
+GET http://localhost:8000/api/songs?api_key=:api-key&page=2
 
 # Adding songs to user favourites
-POST http://localhost:8000/api/users/my-user/favourites/521819a1e4b095b1de16aea5?api_key=:api-key
+POST http://localhost:8000/api/users/my-user/favourites/521bcb2de4b030cc0edddd84?api_key=:api-key
 
 # Retrieving user favourites songs
 GET http://localhost:8000/api/users/my-user/favourites?api_key=:api-key
@@ -18,7 +17,7 @@ GET http://localhost:8000/api/users/my-user/favourites?api_key=:api-key
 DELETE http://localhost:8000/api/users/my-user/favourites/521819a1e4b095b1de16aea5?api_key=:api-key
 
 # Tracks song access
-PUT http://localhost:8000/api/songs/5505f853e4b0d3995c32a7d0/listened?api_key=:api-key
+PUT http://localhost:8000/api/songs/521bcb2de4b030cc0edddd84/listened?api_key=:api-key
 
 # Update song name and artist
 PUT http://localhost:8000/api/songs/5505f853e4b0d3995c32a7d0?api_key=:api-key&new-song-name=Ruperto%20Mena
