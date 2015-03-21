@@ -47,6 +47,12 @@
 (defn del-song-from-favourites [db-cmp song-id user-id]
   (data/del-song-from-favourites db-cmp song-id user-id))
 
+(defn promote-user [db-cmp user-id]
+  (data/update-user-role db-cmp user-id :admin-user))
+
+(defn demote-user [db-cmp user-id]
+  (data/update-user-role db-cmp user-id :normal-user))
+
 (defn check-invitation [db-cmp invitation]
   (data/check-invitation db-cmp invitation))
 

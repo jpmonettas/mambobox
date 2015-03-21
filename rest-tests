@@ -1,11 +1,11 @@
 page#Normal user
-:api-key = 111
+#:api-key = 111
 
 # Admin user
-#:api-key = 666
+:api-key = 666
 
 # Searching songs
-GET http://localhost:8000/api/songs?api_key=:api-key&page=2
+GET http://localhost:8000/api/songs?api_key=:api-key&page=10&tag=untagged
 
 # Adding songs to user favourites
 POST http://localhost:8000/api/users/my-user/favourites/521bcb2de4b030cc0edddd84?api_key=:api-key
@@ -21,3 +21,18 @@ PUT http://localhost:8000/api/songs/521bcb2de4b030cc0edddd84/listened?api_key=:a
 
 # Update song name and artist
 PUT http://localhost:8000/api/songs/5505f853e4b0d3995c32a7d0?api_key=:api-key&new-song-name=Ruperto%20Mena
+
+# Adding a tag to a song
+POST http://localhost:8000/api/songs/5226a0ebe4b023c2ee817150/tags/afro?api_key=:api-key
+
+# Deleting a tag from a song
+DELETE http://localhost:8000/api/songs/5226a0ebe4b023c2ee817150/tags/chacha?api_key=:api-key
+
+# Retrieving all tags
+GET http://localhost:8000/api/songs/tags?api_key=:api-key
+
+# Promote a user
+PUT http://localhost:8000/api/users/55076c5be4b0d5179d664edf/promote?api_key=:api-key
+
+# Demote a user
+PUT http://localhost:8000/api/users/55076c5be4b0d5179d664edf/demote?api_key=:api-key

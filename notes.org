@@ -68,18 +68,20 @@
      PUT /songs/:song-id/listened
 *** DONE Create a service to edit song info
     PUT /songs/:song-id
-*** TODO Create a service to add tag to a song
+*** DONE Create a service to add tag to a song
     POST /songs/:song-id/tags/:tag-id
-*** TODO Create a service to remove tag from a song
+*** DONE Create a service to retrieve all tags with colours
+    GET /songs/tags
+*** DONE Create a service to remove tag from a song
     DELETE /songs/:song-id/tags/:tag-id
-*** TODO Create a service to retrieve untagged songs
-    GET /songs/untagged
+*** DONE Creata a service to promote a user to admin
+    PUT /users/:user-id/promote
+*** DONE Create a service to demote a user from admin
+    PUT /users/:user-id/demote
+
+
 *** TODO Create a service to add a user
     POST /users/:user-id/ (json with full name and profile picture from facebook/gmail)
-*** TODO Creata a service to promote a user to admin
-    PUT /users/:user-id/promote
-*** TODO Create a service to demote a user from admin
-    PUT /users/:user-id/demote
 *** TODO Create a service to login a user by facebook token
 *** TODO Create a service to login a user by google OTC
 *** TODO Add support for uploading wma files

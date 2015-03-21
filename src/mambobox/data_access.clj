@@ -63,11 +63,13 @@
 
 (defn add-song-tag [db-cmp song-id tagname]
   (utils/with-auto-object-id [song-id]
-    (mc/update (db/get-db db-cmp) "songs" {:_id song-id} {$addToSet {:tags tagname}})))
+    (mc/update (db/get-db db-cmp) "songs" {:_id song-id} {$addToSet {:tags tagname}})
+    (get-song-by-id db-cmp song-id)))
       
 (defn del-song-tag [db-cmp song-id tagname]
   (utils/with-auto-object-id [song-id]
-    (mc/update (db/get-db db-cmp) "songs" {:_id song-id} {$pull {:tags tagname}})))
+    (mc/update (db/get-db db-cmp) "songs" {:_id song-id} {$pull {:tags tagname}})
+    (get-song-by-id db-cmp song-id)))
 
 (defn update-song [db-cmp song-id song-name artist]
   (utils/with-auto-object-id [song-id]
@@ -140,6 +142,11 @@
 
 (defn get-all-users [db-cmp]
   (mc/find-maps (db/get-db db-cmp) "users"))
+
+(defn update-user-role [db-cmp user-id new-role]
+  (utils/with-auto-object-id [user-id]
+    (mc/update (db/get-db db-cmp) "users" {:_id user-id} {$set {:role new-role}})
+    (get-user-by-id db-cmp user-id)))
 
 ;; Notes
 

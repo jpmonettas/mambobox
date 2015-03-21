@@ -38,12 +38,19 @@
                                          (accept-song-for-query? song processed-q))
                                        all-songs)
                                all-songs)
-        tag-filtered-songs (if (not (empty? tag)) 
-                             (filter (fn [song]
-                                       (song-contains-tag? song tag))
-                                     query-filtered-songs)
+        tag-filtered-songs (if (not (empty? tag))
+                             
+                             (if (= tag "untagged") 
+                               (filter (fn [song]
+                                         (-> song :tags empty?))
+                                       query-filtered-songs)
+                               
+                               (filter (fn [song]
+                                         (song-contains-tag? song tag))
+                                       query-filtered-songs))
+                             
                              query-filtered-songs)]
-        tag-filtered-songs))
+    tag-filtered-songs))
 
 (defn get-tags-freaquency-map [songs]
   (reduce (fn [map next] 
@@ -153,7 +160,7 @@
                   song-name
                   song-artist
                   file-name
-                  file-name
+                  generated-filename
                   username))
 
 (defn update-song [db-cmp song-id song-name artist]
@@ -163,10 +170,16 @@
   (data/get-song-by-file-name db-cmp file-name))
 
 (defn add-song-tag [db-cmp song-id tag-name]
-  (data/add-song-tag db-cmp song-id tag-name))
+  (let [tags-set (->> (get-all-tags) (map :name) (into #{}))]
+    (if (tags-set tag-name)
+      (data/add-song-tag db-cmp song-id tag-name)
+      (throw+ {:type :invalid-input-data}))))
 
 (defn del-song-tag [db-cmp song-id tag-name]
-  (data/del-song-tag db-cmp song-id tag-name))
+  (let [tags-set (->> (get-all-tags) (map :name) (into #{}))]
+    (if (tags-set tag-name)
+      (data/del-song-tag db-cmp song-id tag-name)
+      (throw+ {:type :invalid-input-data}))))
 
 (defn add-song-external-video-link [db-cmp song-id link]
   (data/add-song-external-video-link db-cmp song-id link))
@@ -216,6 +229,25 @@
                :size size
                :error message}]})))
 
+(defn get-all-tags []
+  [{:name "chacha" :color "#ff0000"}
+   {:name "mambo" :color "#9303a7"}
+   {:name "latin-jazz" :color "#993366"}
+   {:name "guaracha" :color "#64a8d1"}
+   {:name "salsa dura" :color "#2219b2"}
+   {:name "romantica" :color "#cb0077"}
+   {:name "bolero" :color "#e5399e"}
+   {:name "pachanga" :color "#999900"}
+   {:name "boogaloo" :color "#d9534f"}
+   {:name "son" :color "#ff7800"}
+   {:name "montuno" :color "#ff9a40"}
+   {:name "songo" :color "#ffa700"}
+   {:name "danzon" :color "#ffbd40"}
+   {:name "rumba" :color "#138900"}
+   {:name "guaguanco" :color "#389e28"}
+   {:name "yambu" :color "#1dd300"}
+   {:name "columbia" :color "#52e93a"}
+   {:name "afro" :color "#a64b00"}])
 
 
 ;; (defn pprint-songs-scorecard [db-cmp]
