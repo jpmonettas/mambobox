@@ -2,11 +2,32 @@
   (:require [mambobox.utils :as utils]
             [mambobox.data-access :as data]
             [taoensso.timbre :as l]
+            [pantomime.mime :refer [mime-type-of]]
             [fuzzy-string.core :as fuzz-str]
             [clojure.string :refer [lower-case]]
             [clj-time.core :refer [weeks ago after?]]
             [clj-time.coerce :refer [from-date]]
             [slingshot.slingshot :refer [throw+ try+]]))
+
+(defn get-all-tags []
+  [{:name "chacha" :color "#ff0000"}
+   {:name "mambo" :color "#9303a7"}
+   {:name "latin-jazz" :color "#993366"}
+   {:name "guaracha" :color "#64a8d1"}
+   {:name "salsa dura" :color "#2219b2"}
+   {:name "romantica" :color "#cb0077"}
+   {:name "bolero" :color "#e5399e"}
+   {:name "pachanga" :color "#999900"}
+   {:name "boogaloo" :color "#d9534f"}
+   {:name "son" :color "#ff7800"}
+   {:name "montuno" :color "#ff9a40"}
+   {:name "songo" :color "#ffa700"}
+   {:name "danzon" :color "#ffbd40"}
+   {:name "rumba" :color "#138900"}
+   {:name "guaguanco" :color "#389e28"}
+   {:name "yambu" :color "#1dd300"}
+   {:name "columbia" :color "#52e93a"}
+   {:name "afro" :color "#a64b00"}])
 
 (defn accept-song-for-query? [song qstring]
   (let [song-name (lower-case (get song :name))
@@ -191,63 +212,50 @@
   {:io? true}
   (l/debug "Uploading a file for user : " username)
   (l/debug "File : " file-map)
-  (try+
-   (let [file-name (file-map :filename)
-         temp-file (file-map :tempfile)
-         size (file-map :size)
-         generated-file-name (utils/gen-uuid temp-file) ;; md5sum
-         metadata (utils/get-metadata temp-file)
-         metadata-tags (when metadata
-                         (metadata :tags))
-         title-tag (when metadata-tags
-                     (first (metadata-tags :title)))
-         artist-tag (when metadata-tags
-                      (first (metadata-tags :artist)))
-         song-name (if (not (empty? title-tag)) title-tag file-name)
-         song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")
-         existing-song-for-sum (get-song-by-file-name db-cmp generated-file-name)]
-     (if existing-song-for-sum
-       (do  
-         (l/warn username "has uploaded a file:[" file-name "] of size [" size "] that is already on mambobox so skipping.")
-         (throw+ {:type :upload-fail
-                  :message (str "El archivo ya existe con nombre de tema : " (get existing-song-for-sum :name))
-                  :filename file-name
-                  :size size}))
-       (do 
-         (utils/save-file-to-disk file-map generated-file-name (:music-dir system-config))
-         (let [created-song (save-song db-cmp
-                                       song-name
-                                       song-artist
-                                       file-name
-                                       generated-file-name username)] 
-           (l/info username "uploaded a file:[" file-name "] of size [" size "]")
-           (l/info "FS generated name : " generated-file-name)
-           (when (not metadata-tags) (l/info "We couldn't find any file ID3 tag"))
-           created-song))))
-   (catch [:type :upload-fail] {:keys [message filename size]}       
-     {:files [{:name filename
-               :size size
-               :error message}]})))
+  (l/debug "Format : " (mime-type-of (:tempfile file-map)))
+  (if (= (mime-type-of (:tempfile file-map)) "audio/mpeg")
+    (try+
+     (let [file-name (file-map :filename)
+           temp-file (file-map :tempfile)
+           size (file-map :size)
+           generated-file-name (utils/gen-uuid temp-file) ;; md5sum
+           metadata (utils/get-metadata temp-file)
+           metadata-tags (when metadata
+                           (metadata :tags))
+           title-tag (when metadata-tags
+                       (first (metadata-tags :title)))
+           artist-tag (when metadata-tags
+                        (first (metadata-tags :artist)))
+           song-name (if (not (empty? title-tag)) title-tag file-name)
+           song-artist (if (not (empty? artist-tag)) artist-tag "Desconocido")
+           existing-song-for-sum (get-song-by-file-name db-cmp generated-file-name)]
+       (if existing-song-for-sum
+         (do  
+           (l/warn username "has uploaded a file:[" file-name "] of size [" size "] that is already on mambobox so skipping.")
+           (throw+ {:type :upload-fail
+                    :message (str "El archivo ya existe con nombre de tema : " (get existing-song-for-sum :name))
+                    :filename file-name
+                    :size size}))
+         (do 
+           (utils/save-file-to-disk file-map generated-file-name (:music-dir system-config))
+           (let [created-song (save-song db-cmp
+                                         song-name
+                                         song-artist
+                                         file-name
+                                         generated-file-name username)] 
+             (l/info username "uploaded a file:[" file-name "] of size [" size "]")
+             (l/info "FS generated name : " generated-file-name)
+             (when (not metadata-tags) (l/info "We couldn't find any file ID3 tag"))
+             created-song))))
+     (catch [:type :upload-fail] {:keys [message filename size]}       
+       {:files [{:name filename
+                 :size size
+                 :error message}]}))
 
-(defn get-all-tags []
-  [{:name "chacha" :color "#ff0000"}
-   {:name "mambo" :color "#9303a7"}
-   {:name "latin-jazz" :color "#993366"}
-   {:name "guaracha" :color "#64a8d1"}
-   {:name "salsa dura" :color "#2219b2"}
-   {:name "romantica" :color "#cb0077"}
-   {:name "bolero" :color "#e5399e"}
-   {:name "pachanga" :color "#999900"}
-   {:name "boogaloo" :color "#d9534f"}
-   {:name "son" :color "#ff7800"}
-   {:name "montuno" :color "#ff9a40"}
-   {:name "songo" :color "#ffa700"}
-   {:name "danzon" :color "#ffbd40"}
-   {:name "rumba" :color "#138900"}
-   {:name "guaguanco" :color "#389e28"}
-   {:name "yambu" :color "#1dd300"}
-   {:name "columbia" :color "#52e93a"}
-   {:name "afro" :color "#a64b00"}])
+    ;;It's not an mp3 file
+    (throw+ {:type ::format-not-supported :format (mime-type-of (:tempfile file-map))})))
+
+
 
 
 ;; (defn pprint-songs-scorecard [db-cmp]

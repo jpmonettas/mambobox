@@ -47,6 +47,13 @@
 
 * TODOs
 ** Android client
+*** Implementation
+*** Tests
+**** TODO Try a REST API client, with the swagger client
+**** TODO Try to play/resume one of the mp3 files on the server
+**** TODO Try for facebook login button
+**** TODO Try for gmail login button
+**** TODO Try for selecting files and upload them with the REST service
 ** API
 *** DONE Add components system, with db and web server components
 *** DONE Create api skeleton with metosin/compojure-api

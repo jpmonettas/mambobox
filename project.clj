@@ -5,6 +5,9 @@
 
                  ;; Routing
                  ;;[compojure "1.3.2"]
+
+                 ;; For uploaded file format recognition
+                 [com.novemberain/pantomime "2.4.0"]
                  
                  ;; Website authentication/authorization
                  [com.cemerick/friend "0.2.1"]
