@@ -79,6 +79,7 @@
 *** DONE Create a service to demote a user from admin
     PUT /users/:user-id/demote
 
+*** DONE Do something for exception management
 
 *** TODO Create a service to add a user
     POST /users/:user-id/ (json with full name and profile picture from facebook/gmail)

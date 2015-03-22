@@ -59,7 +59,22 @@
                       (do ~@body)
                       (ring.util.http-response/forbidden "Auth required"))))))
 
+
+(defn mambobox-api-exception-handler
+  "An exception handler that logs the exception and returns an internal error (HTTP 500)"
+  [^Exception e]
+  (if (= (type e) clojure.lang.ExceptionInfo)
+    (do
+      (l/error (:object (.getData e)))
+      (internal-server-error {:slingshot-object (:object (.getData e))}))
+    (do
+      (l/error e)
+      (internal-server-error {:type  "unhandled-exception"
+                              :class (.getName (.getClass e))
+                              :stacktrace (map str (.getStackTrace e))}))))
+
 (defapi api-routes
+  {:exceptions {:exception-handler mambobox-api-exception-handler}}
   (swagger-ui "/api/")
   (swagger-docs :title "Mambobox api")
   (swaggered
