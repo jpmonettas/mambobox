@@ -57,7 +57,7 @@
 
                  ;; To embeed a nrepl server in the app
                  [org.clojure/tools.nrepl "0.2.5"]
-                 [cider/cider-nrepl "0.8.1"]
+                 [cider/cider-nrepl "0.9.0-SNAPSHOT"]
 
                  ;; For api with swagger
                  [metosin/compojure-api "0.18.0"]

@@ -55,7 +55,7 @@
   (-> (cc/routes
 
       (cr/resources "/")
-      (cr/files "/files/" (:music-dir system-config))
+      (cr/files "/files/" {:root (:music-dir system-config)})
 
       ;; Api routes
       api-r/api-routes

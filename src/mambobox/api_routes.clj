@@ -13,28 +13,33 @@
                    :name String
                    (s/optional-key :tags) [String]
                    :visits Number
-                   :uploader-username String
-                   :music-file-url String})
+                   :uploaderUsername String
+                   :musicFileUrl String})
 
 (s/defschema Tag {:name String
                   :color String})
 
 (s/defschema User {:id String
-                   :first-name String
-                   :last-name String
+                   :firstName String
+                   :lastName String
                    :username String
-                   :role (s/enum :admin-user :normal-user)})
+                   :role (s/enum :admin :normal)})
 
 (defn user->json-user [u]
-  (-> u
-     (assoc :id (-> u :_id str))
-     (select-keys [:id :first-name :last-name :username :role])))
+  {:id (-> u :_id str)
+   :firstName (:first-name u)
+   :lastName (:last-name u)
+   :username (:username u)
+   :role (:role u)})
 
 (defn song->json-song [s]
-  (-> s
-     (assoc :id (-> s :_id str))
-     (assoc :music-file-url (str "/files/" (:generated-file-name s)))
-     (select-keys [:id :artist :name :tags :visits :uploader-username :music-file-url])))
+  {:id (-> s :_id str)
+   :artist (:artist s)
+   :name (:name s)
+   :tags (:tags s)
+   :visits (:visits s)
+   :uploaderUsername (:uploader-username s)
+   :musicFileUrl (str "/files/" (:generated-file-name s))})
 
 (defn user-for-token [db-cmp token]
   (case token
@@ -83,7 +88,7 @@
 
             (GET* "/" [:as req]
                   :return [Song]
-                  :auth [current-user #{:normal-user :admin-user}]
+                  :auth [current-user #{:normal :admin}]
                   :query-params [{q :- String ""} {tag :- String ""} {page :- Long 1}]
                   :summary "Search songs by query and tag. If tag is untagged, returns untagged songs"
                   (let [db-cmp (:db-cmp req)
@@ -97,7 +102,7 @@
 
             (POST* "/" [file :as req]
                    :return Song
-                   :auth [current-user #{:normal-user :admin-user}]
+                   :auth [current-user #{:normal :admin}]
                    :summary "Upload an mp3 or wma song as multipart-form data under file key"
                    (let [{:keys [db-cmp system-config]} req]
                      (ok (song->json-song (ss/upload-file db-cmp
@@ -106,7 +111,7 @@
                                                           file)))))
 
             (PUT* "/:song-id/listened" [:as req]
-                  :auth [current-user #{:normal-user :admin-user}]
+                  :auth [current-user #{:normal :admin}]
                   :path-params [song-id :- String]
                   :summary "Tracks a song as listened by the user"
                   (let [{:keys [db-cmp system-config]} req]
@@ -115,7 +120,7 @@
 
             (PUT* "/:song-id" [:as req]
                   :return Song
-                  :auth [current-user #{:admin-user}]
+                  :auth [current-user #{:admin}]
                   :path-params [song-id :- String]
                   :query-params [{new-song-name :- String ""}
                                  {new-song-artist :- String ""}]
@@ -127,7 +132,7 @@
 
             (POST* "/:song-id/tags/:tag-id" [:as req]
                   :return Song
-                  :auth [current-user #{:admin-user}]
+                  :auth [current-user #{:admin}]
                   :path-params [song-id :- String
                                 tag-id :- String]
                   :summary "Add a tag to a song"
@@ -141,7 +146,7 @@
 
             (DELETE* "/:song-id/tags/:tag-id" [:as req]
                   :return Song
-                  :auth [current-user #{:admin-user}]
+                  :auth [current-user #{:admin}]
                   :path-params [song-id :- String
                                 tag-id :- String]
                   :summary "Deletes a tag from a song"
@@ -155,7 +160,7 @@
 
             (GET* "/tags" [:as req]
                   :return [Tag]
-                  :auth [current-user #{:admin-user :normal-user}]
+                  :auth [current-user #{:admin :normal}]
                   :summary "Retrieves all tags you can add to a song"
                   (let [{:keys [db-cmp system-config]} req]
                     (ok (ss/get-all-tags))))))
@@ -167,7 +172,7 @@
 
             (POST* "/my-user/favourites/:song-id" [:as req]
                    :summary "Add song to users favourites"
-                   :auth [current-user #{:normal-user :admin-user}]
+                   :auth [current-user #{:normal :admin}]
                    :path-params [song-id :- String]
                    (let [{:keys [db-cmp system-config]} req]
                      (us/add-song-to-favourites db-cmp song-id (:_id current-user))
@@ -176,7 +181,7 @@
             (GET* "/my-user/favourites" [:as req]
                   :return [Song]
                   :summary "Retrieve user favourites songs"
-                  :auth [current-user #{:normal-user :admin-user}]
+                  :auth [current-user #{:normal :admin}]
                   (let [{:keys [db-cmp system-config]} req]
                     (->> (us/get-user-favourites-songs db-cmp (:_id current-user))
                        (map song->json-song)
@@ -186,7 +191,7 @@
                   :return User
                   :summary "Promote a user to admin user"
                   :path-params [user-id :- String]
-                  :auth [current-user #{:admin-user}]
+                  :auth [current-user #{:admin}]
                   (let [{:keys [db-cmp system-config]} req]
                     (-> (us/promote-user db-cmp user-id)
                        user->json-user
@@ -196,7 +201,7 @@
                   :return User
                   :summary "Demote a user to normal user"
                   :path-params [user-id :- String]
-                  :auth [current-user #{:admin-user}]
+                  :auth [current-user #{:admin}]
                   (let [{:keys [db-cmp system-config]} req]
                     (-> (us/demote-user db-cmp user-id)
                        user->json-user
@@ -204,7 +209,7 @@
 
             (DELETE* "/my-user/favourites/:song-id" [:as req]
                      :summary "Delete song from users favourites"
-                     :auth [current-user #{:normal-user :admin-user}]
+                     :auth [current-user #{:normal :admin}]
                      :path-params [song-id :- String]
                      (let [{:keys [db-cmp system-config]} req]
                        (us/del-song-from-favourites db-cmp song-id (:_id current-user))
